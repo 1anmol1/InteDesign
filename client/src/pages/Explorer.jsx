@@ -4,17 +4,15 @@ import { FaSearch, FaHeart, FaRegHeart, FaTimes, FaChevronLeft, FaChevronRight }
 import axios from 'axios';
 import Masonry from 'react-masonry-css';
 import { Link } from 'react-router-dom';
-import PageTransition from '../components/PageTransition';
-
-const API_BASE = 'http://localhost:5000';
+import { API_BASE_URL } from '../constants';
 
 const getProxyUrl = (url) => {
   if (!url || url.startsWith('/images') || url.startsWith('/uploads')) return url;
   try {
     const encoded = btoa(url);
-    return `${API_BASE}/api/images/proxy?url=${encoded}`;
+    return `${API_BASE_URL}/api/images/proxy?url=${encoded}`;
   } catch (e) {
-    return `${API_BASE}/api/images/proxy?url=${encodeURIComponent(url)}`;
+    return `${API_BASE_URL}/api/images/proxy?url=${encodeURIComponent(url)}`;
   }
 };
 
@@ -93,7 +91,7 @@ const Explorer = () => {
       const lastPrompt = sessionStorage.getItem('explorer_prompt');
       const randomLimit = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
 
-      const res = await axios.post(`${API_BASE}/api/pinterest/search`, {
+      const res = await axios.post(`${API_BASE_URL}/api/pinterest/search`, {
         prompt: searchQuery,
         page: 1,
         contextPrompt: lastPrompt,
@@ -130,7 +128,7 @@ const Explorer = () => {
       const nextPage = page + 1;
       const randomLimit = Math.floor(Math.random() * (25 - 12 + 1)) + 12; // Slightly smaller range for load more
 
-      const res = await axios.post(`${API_BASE}/api/pinterest/search`, {
+      const res = await axios.post(`${API_BASE_URL}/api/pinterest/search`, {
         prompt,
         page: nextPage,
         keywords: aiData?.keywords, // Pass existing keywords to bypass Gemini
