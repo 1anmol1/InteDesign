@@ -20,7 +20,7 @@ import MyBoard from './pages/MyBoard';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 
-import AdminLogin from './pages/admin/AdminLogin';
+import NotFound from './pages/NotFound';
 import AdminLayout from './pages/admin/AdminLayout';
 import LeadManager from './pages/admin/LeadManager';
 import PortfolioCMS from './pages/admin/PortfolioCMS';
@@ -94,7 +94,7 @@ function App() {
   if (admin) {
     return (
       <Routes location={location} key={location.pathname}>
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="*" element={<NotFound />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="leads" element={<LeadManager />} />
           <Route path="portfolio" element={<PortfolioCMS />} />
@@ -128,6 +128,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
       <Footer />

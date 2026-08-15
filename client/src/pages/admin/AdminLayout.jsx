@@ -18,7 +18,7 @@ const AdminLayout = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('intedesign_admin_token');
-    if (!token) navigate('/admin/login', { replace: true });
+    if (!token) navigate('/login', { replace: true });
   }, [navigate]);
 
   const handleLogout = () => {
