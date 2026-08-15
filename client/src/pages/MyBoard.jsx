@@ -1067,7 +1067,9 @@ const MyBoard = () => {
                           </div>
                         ) : (
                           <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-black text-lg uppercase truncate">{board.name || 'Untitled Canvas'}</h4>
+                            <h4 className="font-black text-lg uppercase truncate">
+                              {board.name || `${board.count} Canvas ${new Date(board.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })} ${new Date(board.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`}
+                            </h4>
                             <button
                               onClick={() => setRenameData({ code: board.code, name: board.name || '' })}
                               className="text-xs font-bold text-blue-500 hover:underline"

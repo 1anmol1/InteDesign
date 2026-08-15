@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaInstagram, FaPinterest, FaLinkedinIn } from 'react-icons/fa';
 import axios from 'axios';
 import { API_BASE_URL } from '../constants';
+import { AuthContext } from '../components/AuthContext';
 import PageTransition from '../components/PageTransition';
 
 const roomTypes = [
@@ -17,9 +18,10 @@ const servicePackages = [
 
 const Contact = () => {
   const [searchParams] = useSearchParams();
+  const { user } = useContext(AuthContext);
   const [form, setForm] = useState({ 
-    name: '', 
-    email: '', 
+    name: user?.name || '', 
+    email: user?.email || '', 
     phone: '', 
     roomType: '', 
     servicePackage: searchParams.get('service') || '',
@@ -29,6 +31,15 @@ const Contact = () => {
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
+  const [historyBoards, setHistoryBoards] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      axios.get(`${API_BASE_URL}/api/visionboard/history`)
+        .then(res => setHistoryBoards(res.data.history))
+        .catch(err => console.error('Failed to fetch history boards:', err));
+    }
+  }, [user]);
 
   useEffect(() => {
     const service = searchParams.get('service');
@@ -211,15 +222,34 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="text-xs font-black uppercase text-black block mb-2">Vision Board Code (Optional)</label>
-                  <input
-                    name="visionBoardCode"
-                    value={form.visionBoardCode}
-                    onChange={handleChange}
-                    placeholder="e.g. PH-XXXXXX"
-                    className="w-full bg-white border-4 border-black px-4 py-3 text-sm font-bold text-black placeholder-gray-400 focus:outline-none focus:bg-gray-100 transition-colors shadow-[2px_2px_0px_#000000]"
-                  />
-                  <p className="text-xs font-bold text-gray-500 mt-2">If you've downloaded a vision board, enter its code here to share it with us.</p>
+                  <label className="text-xs font-black uppercase text-black block mb-2">Vision Canvas Code (Optional)</label>
+                  {historyBoards.length > 0 ? (
+                    <select
+                      name="visionBoardCode"
+                      value={form.visionBoardCode}
+                      onChange={handleChange}
+                      className="w-full bg-white border-4 border-black px-4 py-3 text-sm font-bold text-black focus:outline-none focus:bg-gray-100 transition-colors appearance-none shadow-[2px_2px_0px_#000000]"
+                    >
+                      <option value="">Select a canvas you created…</option>
+                      {historyBoards.map((b) => {
+                        const displayName = b.name || `${b.count} Canvas ${new Date(b.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })} ${new Date(b.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+                        return (
+                          <option key={b.code} value={b.code}>
+                            {displayName} ({b.code})
+                          </option>
+                        );
+                      })}
+                    </select>
+                  ) : (
+                    <input
+                      name="visionBoardCode"
+                      value={form.visionBoardCode}
+                      onChange={handleChange}
+                      placeholder="e.g. PH-XXXXXX"
+                      className="w-full bg-white border-4 border-black px-4 py-3 text-sm font-bold text-black placeholder-gray-400 focus:outline-none focus:bg-gray-100 transition-colors shadow-[2px_2px_0px_#000000]"
+                    />
+                  )}
+                  <p className="text-xs font-bold text-gray-500 mt-2">If you've saved a vision canvas, select or enter its code here to share it with us.</p>
                 </div>
 
                 <div>

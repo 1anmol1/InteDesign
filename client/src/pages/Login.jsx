@@ -34,7 +34,7 @@ export default function Login() {
 
   const handleQuickLogin = () => {
     const testEmail = loginType === 'admin' ? 'admin@intedesign.studio' : 'test@example.com';
-    const testPass = '123456';
+    const testPass = loginType === 'admin' ? 'intedesign2026' : '123456';
     setEmail(testEmail);
     setPassword(testPass);
     performLogin(testEmail, testPass);
