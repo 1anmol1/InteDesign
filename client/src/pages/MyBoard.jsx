@@ -1055,12 +1055,21 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
       {/* History Modal */}
       <AnimatePresence>
         {showHistoryModal && (
-          <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4 sm:p-6">
+          <div
+            className="fixed inset-0 z-[6000] flex items-center justify-center p-4 sm:p-6 overflow-hidden"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => {
+              // Only prevent if touch is on overlay, not modal content
+              if (e.target === e.currentTarget) e.preventDefault();
+            }}
+          >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowHistoryModal(false)}
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.preventDefault()}
               className="absolute inset-0 bg-white/80 backdrop-blur-sm touch-none"
             />
             <motion.div
@@ -1092,14 +1101,14 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pr-2">
                   {historyBoards.map(board => (
-                    <div key={board.code} className="relative bg-white border-4 border-black p-6 shadow-[6px_6px_0px_#000000] hover:shadow-[2px_2px_0px_#000000] hover:translate-y-1 hover:translate-x-1 transition-all flex flex-col justify-between"
+                    <div key={board.code} className="group relative bg-white border-4 border-black p-6 shadow-[6px_6px_0px_#000000] hover:shadow-[2px_2px_0px_#000000] hover:translate-y-1 hover:translate-x-1 transition-all flex flex-col justify-between"
                       onClick={() => {
                         if (selectedHistoryCodes.length > 0) toggleHistorySelect(board.code);
                       }}
 >
                       <div>
                         
-                        <div className="absolute top-2 right-2 z-10">
+                        <div className={`absolute top-2 right-2 z-10 transition-opacity ${selectedHistoryCodes.includes(board.code) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1158,12 +1167,6 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
                                 className="text-xs font-bold text-blue-500 hover:underline"
                               >
                                 Rename
-                              </button>
-                              <button
-                                onClick={() => handleDeleteHistoryBoard(board.code)}
-                                className="text-xs font-bold text-red-500 hover:underline"
-                              >
-                                Delete
                               </button>
                             </div>
                           </div>
