@@ -42,6 +42,8 @@ const MyBoard = () => {
   const [historyBoards, setHistoryBoards] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [renameData, setRenameData] = useState({ code: null, name: '' });
+  const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
+  const [historyBoardToDelete, setHistoryBoardToDelete] = useState(null);
   
   // Board Save State
   const [isUnsaved, setIsUnsaved] = useState(favorites.length > 0);
@@ -81,7 +83,7 @@ const MyBoard = () => {
 
   // Prevent body scrolling when any modal or lightbox is open
   useEffect(() => {
-    if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || lightboxIndex !== null) {
+    if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || showHistoryDeleteModal || lightboxIndex !== null) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
     } else {
@@ -92,7 +94,7 @@ const MyBoard = () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, lightboxIndex]);
+  }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, showHistoryDeleteModal, lightboxIndex]);
 
   // ── Lightbox (uses tabFavorites for navigation) ────────────────
   const lightboxImage = lightboxIndex !== null ? tabFavorites[lightboxIndex] : null;
@@ -253,15 +255,22 @@ const MyBoard = () => {
     }
   };
 
-  const handleDeleteHistoryBoard = async (code) => {
-    if (!window.confirm("Are you sure you want to delete this board from history?")) return;
+  const handleDeleteHistoryBoard = (code) => {
+    setHistoryBoardToDelete(code);
+    setShowHistoryDeleteModal(true);
+  };
+
+  const confirmDeleteHistoryBoard = async () => {
+    if (!historyBoardToDelete) return;
     try {
-      await axios.delete(`${API_BASE_URL}/api/visionboard/${code}`);
-      setHistoryBoards(prev => prev.filter(b => b.code !== code));
-      if (currentBoardCode === code) {
+      await axios.delete(`${API_BASE_URL}/api/visionboard/${historyBoardToDelete}`);
+      setHistoryBoards(prev => prev.filter(b => b.code !== historyBoardToDelete));
+      if (currentBoardCode === historyBoardToDelete) {
         setCurrentBoardCode(null);
         setCurrentBoardName('');
       }
+      setShowHistoryDeleteModal(false);
+      setHistoryBoardToDelete(null);
     } catch (err) {
       console.error('Failed to delete board:', err);
     }
@@ -1188,6 +1197,55 @@ const MyBoard = () => {
                 <button
                   onClick={() => setShowLoadConfirmModal(false)}
                   className="w-full py-3 bg-white text-black border-2 border-black text-xs font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 mt-2"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* History Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showHistoryDeleteModal && (
+          <div className="fixed inset-0 z-[7000] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setShowHistoryDeleteModal(false);
+                setHistoryBoardToDelete(null);
+              }}
+              className="absolute inset-0 bg-white/60 backdrop-blur-sm touch-none"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-[calc(100%-8px)] sm:w-full max-w-sm bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] text-center"
+            >
+              <div className="w-16 h-16 bg-red-400 border-2 border-black shadow-[4px_4px_0px_#000000] flex items-center justify-center mx-auto mb-6">
+                <FaTrash className="text-black text-xl" />
+              </div>
+              <h3 className="text-2xl font-black text-black uppercase tracking-tighter mb-3">Delete this Canvas?</h3>
+              <p className="text-sm font-bold text-gray-700 mb-8 leading-relaxed">
+                This canvas will be permanently removed from your history. This action cannot be undone.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={confirmDeleteHistoryBoard}
+                  className="w-full py-4 bg-red-500 text-black border-2 border-black text-[11px] font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
+                >
+                  Yes, Delete Canvas
+                </button>
+                <button
+                  onClick={() => {
+                    setShowHistoryDeleteModal(false);
+                    setHistoryBoardToDelete(null);
+                  }}
+                  className="w-full py-4 bg-white text-black border-2 border-black text-[11px] font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                 >
                   Cancel
                 </button>
