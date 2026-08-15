@@ -726,7 +726,7 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
 
       {/* Floating Action Bar - Only when selections exist */}
       <AnimatePresence>
-        {isSelectMode && (
+        {isSelectMode && lightboxIndex === null && (
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
