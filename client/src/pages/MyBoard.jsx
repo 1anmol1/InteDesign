@@ -81,11 +81,14 @@ const MyBoard = () => {
   useEffect(() => {
     if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || lightboxIndex !== null) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, lightboxIndex]);
 
@@ -519,7 +522,7 @@ const MyBoard = () => {
                           >
                             <FaHeart fontSize={12} className={isDownloading ? 'animate-pulse' : ''} />
                             <span className="hidden sm:inline">
-                              {isDownloading ? 'Saving...' : (isUnsaved ? 'Save Board' : 'Saved')}
+                              {isDownloading ? 'Saving...' : (isUnsaved ? 'Save Canvas' : 'Saved')}
                             </span>
                             <span className="sm:hidden">
                               {isDownloading ? '...' : (isUnsaved ? 'Save' : 'Saved')}
@@ -533,7 +536,7 @@ const MyBoard = () => {
                           >
                             <FiDownload fontSize={12} className={isDownloading ? 'animate-bounce' : ''} />
                             <span className="hidden sm:inline">
-                              {isDownloading ? 'Downloading...' : (isSelectMode && selectedIds.length > 0 ? `Download (${selectedIds.length})` : 'Download Board')}
+                              {isDownloading ? 'Downloading...' : (isSelectMode && selectedIds.length > 0 ? `Download (${selectedIds.length})` : 'Download Canvas')}
                             </span>
                             <span className="sm:hidden">
                               {isDownloading ? '...' : (isSelectMode && selectedIds.length > 0 ? `Download (${selectedIds.length})` : 'Download')}
@@ -997,16 +1000,16 @@ const MyBoard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowHistoryModal(false)}
-              className="absolute inset-0 bg-white/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-white/80 backdrop-blur-sm overscroll-contain"
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-6xl bg-white border-4 border-black p-6 sm:p-10 shadow-[12px_12px_0px_#000000] max-h-[90vh] overflow-y-auto flex flex-col"
+              className="relative w-full max-w-6xl bg-white border-4 border-black p-6 sm:p-10 shadow-[12px_12px_0px_#000000] max-h-[90vh] overflow-y-auto overscroll-contain flex flex-col"
             >
               <div className="flex justify-between items-center mb-8 pb-4 border-b-4 border-black">
-                <h3 className="text-3xl sm:text-4xl font-black text-black uppercase tracking-tighter">Board History</h3>
+                <h3 className="text-3xl sm:text-4xl font-black text-black uppercase tracking-tighter">Canvas History</h3>
                 <button
                   onClick={() => setShowHistoryModal(false)}
                   className="p-3 bg-white text-black hover:bg-black hover:text-white border-2 border-black transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
@@ -1044,7 +1047,7 @@ const MyBoard = () => {
                               type="text"
                               value={renameData.name}
                               onChange={(e) => setRenameData({ ...renameData, name: e.target.value })}
-                              placeholder="Board Name..."
+                              placeholder="Canvas Name..."
                               className="w-full p-2 text-sm font-bold border-2 border-black focus:outline-none"
                               autoFocus
                               onKeyDown={(e) => e.key === 'Enter' && handleRename(board.code, renameData.name)}
@@ -1064,7 +1067,7 @@ const MyBoard = () => {
                           </div>
                         ) : (
                           <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-black text-lg uppercase truncate">{board.name || 'Untitled Board'}</h4>
+                            <h4 className="font-black text-lg uppercase truncate">{board.name || 'Untitled Canvas'}</h4>
                             <button
                               onClick={() => setRenameData({ code: board.code, name: board.name || '' })}
                               className="text-xs font-bold text-blue-500 hover:underline"
@@ -1096,7 +1099,7 @@ const MyBoard = () => {
                           onClick={() => handleLoadClick(board)}
                           className="w-full py-3 bg-black text-white font-black uppercase tracking-widest text-xs hover:bg-gray-800 transition-colors shadow-[4px_4px_0px_#FFCE00] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black"
                         >
-                          Load Board ({board.count} items)
+                          Load Canvas ({board.count} items)
                         </button>
                         <button
                           onClick={() => handleDownload(board.images)}
