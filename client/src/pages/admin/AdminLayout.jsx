@@ -24,7 +24,7 @@ const AdminLayout = () => {
   const handleLogout = () => {
     localStorage.removeItem('intedesign_admin_token');
     localStorage.removeItem('intedesign_admin_email');
-    navigate('/admin/login');
+    navigate('/login');
   };
 
   const email = localStorage.getItem('intedesign_admin_email') || 'Admin';
