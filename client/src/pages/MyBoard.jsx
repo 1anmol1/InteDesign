@@ -42,10 +42,11 @@ const MyBoard = () => {
   const [historyBoards, setHistoryBoards] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [renameData, setRenameData] = useState({ code: null, name: '' });
-const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
+  const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
   const [historyBoardToDelete, setHistoryBoardToDelete] = useState(null);
   const [selectedHistoryCodes, setSelectedHistoryCodes] = useState([]);
   const [showHistorySelectionDeleteModal, setShowHistorySelectionDeleteModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   
   // Board Save State
   const [isUnsaved, setIsUnsaved] = useState(favorites.length > 0);
@@ -85,7 +86,7 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
 
   // Prevent body scrolling when any modal or lightbox is open
   useEffect(() => {
-    if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || showHistoryDeleteModal || showHistorySelectionDeleteModal || lightboxIndex !== null) {
+    if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || showHistoryDeleteModal || showHistorySelectionDeleteModal || showDuplicateModal || lightboxIndex !== null) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
     } else {
@@ -96,7 +97,7 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, showHistoryDeleteModal, showHistorySelectionDeleteModal, lightboxIndex]);
+  }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, showHistoryDeleteModal, showHistorySelectionDeleteModal, showDuplicateModal, lightboxIndex]);
 
   // ── Lightbox (uses tabFavorites for navigation) ────────────────
   const lightboxImage = lightboxIndex !== null ? tabFavorites[lightboxIndex] : null;
@@ -241,6 +242,26 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
   };
 
   const handleSaveOnly = async () => {
+    // Check for duplicates before saving
+    const currentFavIds = favorites.map(f => f.id).sort().join(',');
+    const duplicate = historyBoards.find(b => {
+      if (b.code === currentBoardCode) return false;
+      const bIds = b.images.map(img => img.id).sort().join(',');
+      return bIds === currentFavIds;
+    });
+
+    if (duplicate) {
+      setShowDuplicateModal(true);
+      return;
+    }
+
+    setIsDownloading(true);
+    await saveBoard(false);
+    setIsDownloading(false);
+  };
+
+  const confirmSaveDuplicate = async () => {
+    setShowDuplicateModal(false);
     setIsDownloading(true);
     await saveBoard(false);
     setIsDownloading(false);
@@ -472,7 +493,8 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
         pdf.text(isPortfolio ? 'PORTFOLIO' : 'AI EXPLORER', imgX + 40, imgY + drawH + 26, { align: 'center' });
       }
 
-      pdf.save(`InteDesign Vision Board ${boardCode}.pdf`);
+      const pdfUserName = (user?.name || 'Guest').replace(/\s+/g, '_');
+      pdf.save(`${pdfUserName}_${boardCode}_InteDesign_Vision_Board.pdf`);
     } catch (err) {
       console.error('PDF download failed:', err);
     } finally {
@@ -1074,6 +1096,45 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
           .my-masonry-grid_column { padding-left: 16px; }
         }
       `}</style>
+      <AnimatePresence>
+        {showDuplicateModal && (
+          <div className="fixed inset-0 z-[6000] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDuplicateModal(false)}
+              className="absolute inset-0 bg-white/60 backdrop-blur-sm touch-none"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-sm bg-white border-4 border-black p-8 shadow-[8px_8px_0px_#000000]"
+            >
+              <h3 className="text-2xl font-black text-black uppercase tracking-tighter mb-4">Duplicate Canvas</h3>
+              <p className="text-sm font-bold text-gray-700 mb-8">
+                A canvas board with these exact same images already exists in your history. Do you still want to save it as a new duplicate?
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={confirmSaveDuplicate}
+                  className="flex-1 py-3 bg-red-500 text-black font-black uppercase tracking-widest text-xs hover:bg-red-400 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black"
+                >
+                  Save Anyway
+                </button>
+                <button
+                  onClick={() => setShowDuplicateModal(false)}
+                  className="flex-1 py-3 bg-white text-black font-black uppercase tracking-widest text-xs hover:bg-gray-100 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* History Modal */}
       <AnimatePresence>
         {showHistoryModal && (
