@@ -32,6 +32,7 @@ const Explorer = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { user, loading: authLoading } = useContext(AuthContext);
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem('intedesign_favorites');
     return saved ? JSON.parse(saved) : [];
@@ -75,8 +76,6 @@ const Explorer = () => {
   const [isGlowing, setIsGlowing] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [randomPhrase, setRandomPhrase] = useState(() => sessionStorage.getItem('explorer_phrase') || '');
-  const { user, loading: authLoading } = useContext(AuthContext);
-
   const inspirationPhrases = [
     "We’ve curated {count} design concepts for your space.",
     "{count} tailored inspirations, hand-picked for your vibe.",
