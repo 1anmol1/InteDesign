@@ -1131,44 +1131,38 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
                         </div>
 
                         {renameData.code === board.code ? (
-                          <div className="flex flex-wrap items-center gap-2 mb-4">
+                          <div className="mb-4">
                             <input
                               type="text"
                               value={renameData.name}
                               onChange={(e) => setRenameData({ ...renameData, name: e.target.value })}
                               placeholder="Canvas Name..."
-                              className="w-full sm:flex-1 p-2 text-sm font-bold border-2 border-black focus:outline-none"
+                              className="w-full font-black text-lg uppercase truncate bg-transparent border-b-2 border-black focus:outline-none focus:border-pink-400 transition-colors py-1"
                               autoFocus
-                              onKeyDown={(e) => e.key === 'Enter' && handleRename(board.code, renameData.name)}
+                              onFocus={(e) => e.target.select()}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleRename(board.code, renameData.name);
+                                if (e.key === 'Escape') setRenameData({ code: null, name: '' });
+                              }}
+                              onBlur={() => {
+                                if (renameData.name.trim()) handleRename(board.code, renameData.name);
+                                else setRenameData({ code: null, name: '' });
+                              }}
                             />
-                            <div className="flex w-full sm:w-auto gap-2">
-                              <button
-                                onClick={() => handleRename(board.code, renameData.name)}
-                                className="flex-1 bg-black text-white px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black whitespace-nowrap"
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={() => setRenameData({ code: null, name: '' })}
-                                className="flex-1 bg-gray-200 text-black px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black whitespace-nowrap"
-                              >
-                                Cancel
-                              </button>
-                            </div>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-black text-lg uppercase truncate">
+                          <div className="mb-4">
+                            <h4
+                              className="font-black text-lg uppercase truncate cursor-text hover:text-pink-500 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const displayName = board.name || `${board.count} Canvas ${new Date(board.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })} ${new Date(board.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+                                setRenameData({ code: board.code, name: displayName });
+                              }}
+                              title="Click to rename"
+                            >
                               {board.name || `${board.count} Canvas ${new Date(board.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })} ${new Date(board.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`}
                             </h4>
-                            <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => setRenameData({ code: board.code, name: board.name || '' })}
-                                className="text-xs font-bold text-blue-500 hover:underline"
-                              >
-                                Rename
-                              </button>
-                            </div>
                           </div>
                         )}
 
