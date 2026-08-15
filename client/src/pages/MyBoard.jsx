@@ -866,13 +866,13 @@ const MyBoard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowDeleteModal(false)}
-              className="absolute inset-0 bg-white/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-white/60 backdrop-blur-sm touch-none"
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-white border-4 border-black p-8 shadow-[12px_12px_0px_#000000] text-center"
+              className="relative w-[calc(100%-8px)] sm:w-full max-w-sm bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] text-center"
             >
               <div className="w-16 h-16 bg-red-400 border-2 border-black shadow-[4px_4px_0px_#000000] flex items-center justify-center mx-auto mb-6">
                 <FaTrash className="text-black text-xl" />
@@ -909,13 +909,13 @@ const MyBoard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowSelectionDeleteModal(false)}
-              className="absolute inset-0 bg-white/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-white/60 backdrop-blur-sm touch-none"
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-white border-4 border-black p-8 shadow-[12px_12px_0px_#000000] text-center"
+              className="relative w-[calc(100%-8px)] sm:w-full max-w-sm bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] text-center"
             >
               <div className="w-16 h-16 bg-red-400 border-2 border-black shadow-[4px_4px_0px_#000000] flex items-center justify-center mx-auto mb-6">
                 <FaTrash className="text-black text-xl" />
@@ -950,13 +950,13 @@ const MyBoard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowItemDeleteModal(false)}
-              className="absolute inset-0 bg-white/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-white/60 backdrop-blur-sm touch-none"
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-white border-4 border-black p-8 shadow-[12px_12px_0px_#000000] text-center"
+              className="relative w-[calc(100%-8px)] sm:w-full max-w-sm bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] text-center"
             >
               <div className="w-16 h-16 bg-red-400 border-2 border-black shadow-[4px_4px_0px_#000000] flex items-center justify-center mx-auto mb-6">
                 <FaTrash className="text-black text-xl" />
@@ -1002,23 +1002,25 @@ const MyBoard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowHistoryModal(false)}
-              className="absolute inset-0 bg-white/80 backdrop-blur-sm overscroll-contain"
+              className="absolute inset-0 bg-white/80 backdrop-blur-sm touch-none"
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-6xl bg-white border-4 border-black p-6 sm:p-10 shadow-[12px_12px_0px_#000000] max-h-[90vh] overflow-y-auto overscroll-contain flex flex-col"
+              className="relative w-[calc(100%-12px)] max-w-6xl bg-white border-4 border-black p-4 sm:p-10 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] max-h-[90vh] flex flex-col"
             >
-              <div className="flex justify-between items-center mb-8 pb-4 border-b-4 border-black">
-                <h3 className="text-3xl sm:text-4xl font-black text-black uppercase tracking-tighter">Canvas History</h3>
+              <div className="flex justify-between items-center mb-6 sm:mb-8 pb-4 border-b-4 border-black flex-shrink-0">
+                <h3 className="text-2xl sm:text-4xl font-black text-black uppercase tracking-tighter">Canvas History</h3>
                 <button
                   onClick={() => setShowHistoryModal(false)}
-                  className="p-3 bg-white text-black hover:bg-black hover:text-white border-2 border-black transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
+                  className="p-2 sm:p-3 bg-white text-black hover:bg-black hover:text-white border-2 border-black transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                 >
-                  <FaTimes className="text-xl" />
+                  <FaTimes className="text-lg sm:text-xl" />
                 </button>
               </div>
+
+              <div className="overflow-y-auto flex-1 overscroll-contain pr-2 -mr-2">
 
               {isLoadingHistory ? (
                 <div className="text-center py-20">
@@ -1044,28 +1046,30 @@ const MyBoard = () => {
                         </div>
 
                         {renameData.code === board.code ? (
-                          <div className="flex items-center gap-2 mb-4">
+                          <div className="flex flex-wrap items-center gap-2 mb-4">
                             <input
                               type="text"
                               value={renameData.name}
                               onChange={(e) => setRenameData({ ...renameData, name: e.target.value })}
                               placeholder="Canvas Name..."
-                              className="w-full p-2 text-sm font-bold border-2 border-black focus:outline-none"
+                              className="w-full sm:flex-1 p-2 text-sm font-bold border-2 border-black focus:outline-none"
                               autoFocus
                               onKeyDown={(e) => e.key === 'Enter' && handleRename(board.code, renameData.name)}
                             />
-                            <button
-                              onClick={() => handleRename(board.code, renameData.name)}
-                              className="bg-black text-white px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black"
-                            >
-                              Save
-                            </button>
-                            <button
-                              onClick={() => setRenameData({ code: null, name: '' })}
-                              className="bg-gray-200 text-black px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black"
-                            >
-                              Cancel
-                            </button>
+                            <div className="flex w-full sm:w-auto gap-2">
+                              <button
+                                onClick={() => handleRename(board.code, renameData.name)}
+                                className="flex-1 bg-black text-white px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black whitespace-nowrap"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => setRenameData({ code: null, name: '' })}
+                                className="flex-1 bg-gray-200 text-black px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black whitespace-nowrap"
+                              >
+                                Cancel
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <div className="flex items-center justify-between mb-4">
@@ -1116,6 +1120,7 @@ const MyBoard = () => {
                   ))}
                 </div>
               )}
+              </div>
             </motion.div>
           </div>
         )}
@@ -1128,13 +1133,13 @@ const MyBoard = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowLoadConfirmModal(false)}
-              className="absolute inset-0 bg-white/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-white/80 backdrop-blur-sm touch-none"
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md bg-white border-4 border-black p-8 shadow-[12px_12px_0px_#000000] text-center"
+              className="relative w-[calc(100%-8px)] sm:w-full max-w-md bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] text-center"
             >
               <h3 className="text-2xl font-black text-black uppercase tracking-tighter mb-4">Unsaved Changes</h3>
               <p className="text-sm font-bold text-gray-700 mb-8">
