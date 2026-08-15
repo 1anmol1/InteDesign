@@ -253,6 +253,20 @@ const MyBoard = () => {
     }
   };
 
+  const handleDeleteHistoryBoard = async (code) => {
+    if (!window.confirm("Are you sure you want to delete this board from history?")) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/api/visionboard/${code}`);
+      setHistoryBoards(prev => prev.filter(b => b.code !== code));
+      if (currentBoardCode === code) {
+        setCurrentBoardCode(null);
+        setCurrentBoardName('');
+      }
+    } catch (err) {
+      console.error('Failed to delete board:', err);
+    }
+  };
+
   const handleDownload = async (imagesToDownload = favorites) => {
     if (imagesToDownload.length === 0) return;
     setIsDownloading(true);
@@ -488,9 +502,9 @@ const MyBoard = () => {
                         y: 0
                       }}
                       transition={{ duration: 0.3 }}
-                      className="pointer-events-auto flex items-center justify-between gap-3 no-scrollbar bg-white border-4 border-black p-2 shadow-[8px_8px_0px_#000000]"
+                      className="pointer-events-auto flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white border-4 border-black p-2 shadow-[8px_8px_0px_#000000]"
                     >
-                      <div className="flex items-center gap-2 md:gap-3 overflow-x-auto no-scrollbar px-2">
+                      <div className="flex items-center gap-2 md:gap-3 overflow-x-auto no-scrollbar px-2 w-full md:w-auto pb-2 md:pb-0 border-b-2 md:border-b-0 border-gray-200 md:border-transparent">
                       {[
                         { key: 'all', label: `All (${favorites.length})` },
                         { key: 'portfolio', label: `Portfolio (${portfolioCount})` },
@@ -514,7 +528,7 @@ const MyBoard = () => {
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-3 pr-2">
+                    <div className="flex items-center justify-between md:justify-end gap-3 px-2 w-full md:w-auto">
                       {favorites.length > 0 && (
                         <>
                           <button
@@ -1020,7 +1034,7 @@ const MyBoard = () => {
                 </button>
               </div>
 
-              <div className="overflow-y-auto flex-1 overscroll-contain pr-2 -mr-2">
+              <div className="overflow-y-auto flex-1 overscroll-contain pr-2 -mr-2 min-h-0">
 
               {isLoadingHistory ? (
                 <div className="text-center py-20">
@@ -1076,12 +1090,20 @@ const MyBoard = () => {
                             <h4 className="font-black text-lg uppercase truncate">
                               {board.name || `${board.count} Canvas ${new Date(board.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })} ${new Date(board.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`}
                             </h4>
-                            <button
-                              onClick={() => setRenameData({ code: board.code, name: board.name || '' })}
-                              className="text-xs font-bold text-blue-500 hover:underline"
-                            >
-                              Rename
-                            </button>
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => setRenameData({ code: board.code, name: board.name || '' })}
+                                className="text-xs font-bold text-blue-500 hover:underline"
+                              >
+                                Rename
+                              </button>
+                              <button
+                                onClick={() => handleDeleteHistoryBoard(board.code)}
+                                className="text-xs font-bold text-red-500 hover:underline"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
                         )}
 

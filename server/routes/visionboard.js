@@ -119,6 +119,23 @@ router.put('/:code/rename', userAuth, async (req, res) => {
   }
 });
 
+// ── DELETE /api/visionboard/:code ───────────────────────────────────────────
+// Delete (soft delete) a specific vision board
+router.delete('/:code', userAuth, async (req, res) => {
+  try {
+    const board = await VisionBoard.findOneAndUpdate(
+      { code: req.params.code.toUpperCase(), userId: req.user.id },
+      { isDeleted: true },
+      { new: true }
+    );
+    if (!board) return res.status(404).json({ error: 'Board not found or unauthorized.' });
+    return res.json({ success: true, message: 'Board deleted successfully.' });
+  } catch (err) {
+    console.error('VisionBoard delete error:', err);
+    return res.status(500).json({ error: 'Failed to delete board.' });
+  }
+});
+
 // ── GET /api/visionboard/:code ──────────────────────────────────────────────
 // Public: look up a board by code and return its images
 router.get('/:code', async (req, res) => {
