@@ -20,6 +20,7 @@ const visionBoardSchema = new mongoose.Schema({
   images: [boardImageSchema],
   name: { type: String, trim: true }, // Admin-assigned name
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  isDownloaded: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
   deletedAt: { type: Date },
   createdAt: { type: Date, default: Date.now },

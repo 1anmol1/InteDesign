@@ -39,6 +39,17 @@ const MyBoard = () => {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyBoards, setHistoryBoards] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [renameData, setRenameData] = useState({ code: null, name: '' });
+  
+  // Board Save State
+  const [isUnsaved, setIsUnsaved] = useState(favorites.length > 0);
+  const [currentBoardCode, setCurrentBoardCode] = useState(null);
+  const [currentBoardName, setCurrentBoardName] = useState('');
+  
+  // Load Board Confirm Modal
+  const [showLoadConfirmModal, setShowLoadConfirmModal] = useState(false);
+  const [boardToLoad, setBoardToLoad] = useState(null);
+  const skipUnsavedRef = useRef(false);
 
   const boardRef = useRef(null);
   const bottomRef = useRef(null);
@@ -60,6 +71,10 @@ const MyBoard = () => {
 
   useEffect(() => {
     localStorage.setItem('intedesign_favorites', JSON.stringify(favorites));
+    if (!skipUnsavedRef.current) {
+      setIsUnsaved(true);
+    }
+    skipUnsavedRef.current = false;
   }, [favorites]);
 
   // ── Lightbox (uses tabFavorites for navigation) ────────────────
@@ -158,10 +173,67 @@ const MyBoard = () => {
     }
   };
 
-  const loadHistoryBoard = (board) => {
+  const handleLoadClick = (board) => {
+    if (isUnsaved && favorites.length > 0) {
+      setBoardToLoad(board);
+      setShowLoadConfirmModal(true);
+    } else {
+      executeLoadBoard(board);
+    }
+  };
+
+  const executeLoadBoard = (board) => {
+    skipUnsavedRef.current = true;
     setFavorites(board.images);
+    setCurrentBoardCode(board.code);
+    setCurrentBoardName(board.name || '');
+    setIsUnsaved(false);
     setShowHistoryModal(false);
+    setShowLoadConfirmModal(false);
+    setBoardToLoad(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const saveBoard = async (asDownloaded = false) => {
+    if (favorites.length === 0) return null;
+    
+    try {
+      const payload = {
+        images: favorites,
+        isDownloaded: asDownloaded,
+      };
+      if (currentBoardCode) payload.code = currentBoardCode;
+      if (currentBoardName) payload.name = currentBoardName;
+
+      const res = await axios.post(`${API_BASE_URL}/api/visionboard/save`, payload);
+      
+      const newCode = res.data.code;
+      setCurrentBoardCode(newCode);
+      setIsUnsaved(false);
+      localStorage.setItem('intedesign_last_board_code', newCode);
+      return newCode;
+    } catch (err) {
+      console.error('Failed to save vision board to DB:', err);
+      alert('Unable to save vision board. Please try again.');
+      return null;
+    }
+  };
+
+  const handleSaveOnly = async () => {
+    setIsDownloading(true);
+    await saveBoard(false);
+    setIsDownloading(false);
+  };
+
+  const handleRename = async (code, newName) => {
+    try {
+      await axios.put(`${API_BASE_URL}/api/visionboard/${code}/rename`, { name: newName });
+      setHistoryBoards(prev => prev.map(b => b.code === code ? { ...b, name: newName } : b));
+      if (currentBoardCode === code) setCurrentBoardName(newName);
+      setRenameData({ code: null, name: '' });
+    } catch (err) {
+      console.error('Failed to rename board:', err);
+    }
   };
 
   const handleDownload = async (imagesToDownload = favorites) => {
@@ -170,20 +242,9 @@ const MyBoard = () => {
 
     try {
       // 1. Save board to DB → get unique code
-      let boardCode = null;
-      try {
-        const res = await axios.post(`${API_BASE_URL}/api/visionboard/save`, { images: imagesToDownload });
-        boardCode = res.data.code;
-        // Save code locally to pre-fill contact form
-        localStorage.setItem('intedesign_last_board_code', boardCode);
-      } catch (err) {
-        console.error('Failed to save vision board to DB:', err);
-        // We really want that code for the admin to see, so if save fails, we stop or warn
-        // For now, let's proceed but ideally admin should see a jumbled code even if DB fails?
-        // User said: "Pdf name should be InteDesign Vision Board (6 digits and letters jumbled)"
-        // If save fails, we don't have a code. Let's make it mandatory.
+      let boardCode = await saveBoard(true);
+      if (!boardCode) {
         setIsDownloading(false);
-        alert('Unable to generate vision board reference. Please try again.');
         return;
       }
 
@@ -438,19 +499,35 @@ const MyBoard = () => {
 
                     <div className="flex items-center gap-3 pr-2">
                       {favorites.length > 0 && (
-                        <button
-                          onClick={() => handleDownload(isSelectMode ? favorites.filter(f => selectedIds.includes(f.id)) : favorites)}
-                          disabled={isDownloading}
-                          className="flex items-center gap-2 px-6 py-2 md:py-3 text-[10px] md:text-xs font-black tracking-widest uppercase transition-all duration-300 whitespace-nowrap disabled:opacity-30 cursor-pointer neopop-btn bg-pink-400 text-black shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
-                        >
-                          <FiDownload fontSize={12} className={isDownloading ? 'animate-bounce' : ''} />
-                          <span className="hidden sm:inline">
-                            {isDownloading ? 'Saving...' : (isSelectMode && selectedIds.length > 0 ? `Download (${selectedIds.length})` : 'Download')}
-                          </span>
-                          <span className="sm:hidden">
-                            {isDownloading ? '...' : (isSelectMode && selectedIds.length > 0 ? `Download (${selectedIds.length})` : 'Download')}
-                          </span>
-                        </button>
+                        <>
+                          <button
+                            onClick={handleSaveOnly}
+                            disabled={isDownloading || !isUnsaved}
+                            className={`flex items-center gap-2 px-6 py-2 md:py-3 text-[10px] md:text-xs font-black tracking-widest uppercase transition-all duration-300 whitespace-nowrap cursor-pointer neopop-btn ${!isUnsaved ? 'bg-gray-200 text-gray-500 shadow-none' : 'bg-yellow-400 text-black shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1'}`}
+                          >
+                            <FaHeart fontSize={12} className={isDownloading ? 'animate-pulse' : ''} />
+                            <span className="hidden sm:inline">
+                              {isDownloading ? 'Saving...' : (isUnsaved ? 'Save Board' : 'Saved')}
+                            </span>
+                            <span className="sm:hidden">
+                              {isDownloading ? '...' : (isUnsaved ? 'Save' : 'Saved')}
+                            </span>
+                          </button>
+                          
+                          <button
+                            onClick={() => handleDownload(isSelectMode ? favorites.filter(f => selectedIds.includes(f.id)) : favorites)}
+                            disabled={isDownloading}
+                            className="flex items-center gap-2 px-6 py-2 md:py-3 text-[10px] md:text-xs font-black tracking-widest uppercase transition-all duration-300 whitespace-nowrap disabled:opacity-30 cursor-pointer neopop-btn bg-pink-400 text-black shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
+                          >
+                            <FiDownload fontSize={12} className={isDownloading ? 'animate-bounce' : ''} />
+                            <span className="hidden sm:inline">
+                              {isDownloading ? 'Downloading...' : (isSelectMode && selectedIds.length > 0 ? `Download (${selectedIds.length})` : 'Download Board')}
+                            </span>
+                            <span className="sm:hidden">
+                              {isDownloading ? '...' : (isSelectMode && selectedIds.length > 0 ? `Download (${selectedIds.length})` : 'Download')}
+                            </span>
+                          </button>
+                        </>
                       )}
                     </div>
                   </motion.div>
@@ -914,7 +991,7 @@ const MyBoard = () => {
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-4xl bg-white border-4 border-black p-6 sm:p-10 shadow-[12px_12px_0px_#000000] max-h-[90vh] overflow-y-auto flex flex-col"
+              className="relative w-full max-w-6xl bg-white border-4 border-black p-6 sm:p-10 shadow-[12px_12px_0px_#000000] max-h-[90vh] overflow-y-auto flex flex-col"
             >
               <div className="flex justify-between items-center mb-8 pb-4 border-b-4 border-black">
                 <h3 className="text-3xl sm:text-4xl font-black text-black uppercase tracking-tighter">Board History</h3>
@@ -943,10 +1020,48 @@ const MyBoard = () => {
                           <span className="bg-yellow-400 text-black px-3 py-1 font-black uppercase tracking-widest text-xs border-2 border-black">
                             {board.code}
                           </span>
-                          <span className="text-xs font-bold text-gray-500">
-                            {new Date(board.createdAt).toLocaleDateString()}
+                          <span className="text-xs font-bold text-gray-500 text-right">
+                            {new Date(board.createdAt).toLocaleString()}<br/>
+                            {board.isDownloaded ? 'Downloaded' : 'Saved Draft'}
                           </span>
                         </div>
+
+                        {renameData.code === board.code ? (
+                          <div className="flex items-center gap-2 mb-4">
+                            <input
+                              type="text"
+                              value={renameData.name}
+                              onChange={(e) => setRenameData({ ...renameData, name: e.target.value })}
+                              placeholder="Board Name..."
+                              className="w-full p-2 text-sm font-bold border-2 border-black focus:outline-none"
+                              autoFocus
+                              onKeyDown={(e) => e.key === 'Enter' && handleRename(board.code, renameData.name)}
+                            />
+                            <button
+                              onClick={() => handleRename(board.code, renameData.name)}
+                              className="bg-black text-white px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setRenameData({ code: null, name: '' })}
+                              className="bg-gray-200 text-black px-3 py-2 text-xs font-black uppercase tracking-widest border-2 border-black"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-black text-lg uppercase truncate">{board.name || 'Untitled Board'}</h4>
+                            <button
+                              onClick={() => setRenameData({ code: board.code, name: board.name || '' })}
+                              className="text-xs font-bold text-blue-500 hover:underline"
+                            >
+                              Rename
+                            </button>
+                          </div>
+                        )}
+
                         <div className="flex -space-x-4 mb-6 overflow-hidden py-2 pl-2">
                           {board.images.slice(0, 4).map((img, i) => (
                             <img 
@@ -964,16 +1079,73 @@ const MyBoard = () => {
                           )}
                         </div>
                       </div>
-                      <button
-                        onClick={() => loadHistoryBoard(board)}
-                        className="w-full py-3 bg-black text-white font-black uppercase tracking-widest text-xs hover:bg-gray-800 transition-colors shadow-[4px_4px_0px_#FFCE00] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black"
-                      >
-                        Load Board ({board.count} items)
-                      </button>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handleLoadClick(board)}
+                          className="w-full py-3 bg-black text-white font-black uppercase tracking-widest text-xs hover:bg-gray-800 transition-colors shadow-[4px_4px_0px_#FFCE00] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black"
+                        >
+                          Load Board ({board.count} items)
+                        </button>
+                        <button
+                          onClick={() => handleDownload(board.images)}
+                          className="w-full py-3 bg-pink-400 text-black font-black uppercase tracking-widest text-xs hover:bg-pink-300 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black flex items-center justify-center gap-2"
+                        >
+                          <FiDownload /> Download PDF
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Unsaved Changes Confirmation Modal */}
+      <AnimatePresence>
+        {showLoadConfirmModal && (
+          <div className="fixed inset-0 z-[7000] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowLoadConfirmModal(false)}
+              className="absolute inset-0 bg-white/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-white border-4 border-black p-8 shadow-[12px_12px_0px_#000000] text-center"
+            >
+              <h3 className="text-2xl font-black text-black uppercase tracking-tighter mb-4">Unsaved Changes</h3>
+              <p className="text-sm font-bold text-gray-700 mb-8">
+                Your current board has unsaved items. Loading a new board will clear them. Would you like to save your current board before continuing?
+              </p>
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={async () => {
+                    await handleSaveOnly();
+                    if (boardToLoad) executeLoadBoard(boardToLoad);
+                  }}
+                  className="w-full py-4 bg-yellow-400 text-black border-2 border-black text-xs font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
+                >
+                  Save Current & Load
+                </button>
+                <button
+                  onClick={() => {
+                    if (boardToLoad) executeLoadBoard(boardToLoad);
+                  }}
+                  className="w-full py-4 bg-red-500 text-black border-2 border-black text-xs font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
+                >
+                  Clear Current & Load
+                </button>
+                <button
+                  onClick={() => setShowLoadConfirmModal(false)}
+                  className="w-full py-3 bg-white text-black border-2 border-black text-xs font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 mt-2"
+                >
+                  Cancel
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

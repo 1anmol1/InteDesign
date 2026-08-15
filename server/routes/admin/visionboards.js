@@ -8,7 +8,7 @@ const auth = require('../../middleware/auth');
 router.get('/', auth, async (req, res) => {
   try {
     let { code } = req.query;
-    const query = { isDeleted: { $ne: true } };
+    const query = { isDeleted: { $ne: true }, isDownloaded: { $ne: false } };
 
     if (code) {
       const searchTerm = code.trim();
