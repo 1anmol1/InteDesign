@@ -1,22 +1,26 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const path = require('path');
-const Admin = require('./models/Admin');
+require('dotenv').config({ path: '.env' });
+const Project = require('./models/Project');
+const VisionBoard = require('./models/VisionBoard');
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+mongoose.connect(process.env.MONGODB_URI).then(async () => {
+  const projects = await Project.find();
+  let base64ProjectCount = 0;
+  for (const p of projects) {
+    if (p.images.some(img => img.startsWith('data:image'))) {
+      base64ProjectCount++;
+    }
+  }
 
-mongoose.connect(process.env.MONGODB_URI)
-    .then(async () => {
-        console.log('Connected to MongoDB');
-        const admin = await Admin.findOne({ email: (process.env.ADMIN_EMAIL || 'admin@intedesign.studio').toLowerCase() });
-        if (admin) {
-            console.log('Admin user found:', admin.email);
-        } else {
-            console.log('Admin user NOT found');
-        }
-        process.exit(0);
-    })
-    .catch(err => {
-        console.error('Connection error:', err.message);
-        process.exit(1);
-    });
+  const boards = await VisionBoard.find();
+  let base64BoardCount = 0;
+  for (const b of boards) {
+    if (b.images.some(img => img.url?.startsWith('data:image') || img.thumb?.startsWith('data:image'))) {
+      base64BoardCount++;
+    }
+  }
+
+  console.log(`Projects with base64: ${base64ProjectCount}`);
+  console.log(`Boards with base64: ${base64BoardCount}`);
+  process.exit(0);
+});

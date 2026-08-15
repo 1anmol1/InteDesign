@@ -108,7 +108,7 @@ const PortfolioCMS = () => {
             >
               {p.images?.[0] ? (
                 <img
-                  src={p.images[0].startsWith('/images') ? p.images[0] : `${API_BASE_URL}${p.images[0]}`}
+                  src={p.images[0].startsWith('http') ? p.images[0] : (p.images[0].startsWith('/images') ? p.images[0] : `${API_BASE_URL}${p.images[0]}`)}
                   alt={p.title}
                   className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -208,7 +208,7 @@ const PortfolioCMS = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
             <button className="absolute top-6 right-6 text-white/50 hover:text-white"><FaTimes className="text-xl" /></button>
             <div className="max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
-              <img src={lightbox.images[0].startsWith('/images') ? lightbox.images[0] : `${API_BASE_URL}${lightbox.images[0]}`} alt={lightbox.title} className="w-full rounded-xl mb-4" />
+              <img src={lightbox.images[0].startsWith('http') ? lightbox.images[0] : (lightbox.images[0].startsWith('/images') ? lightbox.images[0] : `${API_BASE_URL}${lightbox.images[0]}`)} alt={lightbox.title} className="w-full rounded-xl mb-4" />
               <h3 className="text-lg font-serif text-white">{lightbox.title}</h3>
               <p className="text-xs text-white/40 mb-1">{lightbox.category} · {lightbox.location} · {lightbox.year}</p>
               <p className="text-sm text-white/60">{lightbox.description}</p>

@@ -7,7 +7,9 @@ import { FaSearch, FaTrash, FaImage, FaExternalLinkAlt, FaEdit, FaCheck, FaTimes
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
 const getProxyUrl = (url) => {
-  if (!url || url.startsWith('/images') || url.startsWith('/uploads')) return url;
+  if (!url) return url;
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('/images') || url.startsWith('/uploads')) return url;
   try {
     const encoded = btoa(url);
     return `${API_BASE_URL}/api/images/proxy?url=${encoded}`;
