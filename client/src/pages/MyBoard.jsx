@@ -1143,11 +1143,16 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
                           </span>
                           <span className="text-xs font-bold text-gray-500 text-right">
                             {new Date(board.createdAt).toLocaleString()}<br/>
-                            {board.isDownloaded
-                              ? (board.downloadedAt && (Date.now() - new Date(board.downloadedAt).getTime()) < 24 * 60 * 60 * 1000
-                                ? <span className="text-green-600">Recently Downloaded</span>
-                                : <span className="text-blue-500">Downloaded</span>)
-                              : <span className="text-gray-400">Saved Draft</span>}
+                            {(() => {
+                              if (!board.isDownloaded) return <span className="text-gray-400">Saved Draft</span>;
+                              const latestDownloadedBoard = historyBoards
+                                .filter(b => b.isDownloaded && b.downloadedAt)
+                                .sort((a, b) => new Date(b.downloadedAt) - new Date(a.downloadedAt))[0];
+                              if (latestDownloadedBoard && latestDownloadedBoard.code === board.code) {
+                                return <span className="text-green-600">Downloaded Latest</span>;
+                              }
+                              return <span className="text-blue-500">Downloaded</span>;
+                            })()}
                           </span>
                         </div>
 
