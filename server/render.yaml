@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: phantasia-backend
+    name: intedesign-backend
     env: node
     plan: free
     buildCommand: npm install

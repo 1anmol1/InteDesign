@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import Lenis from 'lenis';
-import Scene from './components/Scene';
+
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -14,8 +14,11 @@ import Portfolio from './pages/Portfolio';
 import Services from './pages/Services';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import LegalPage from './pages/LegalPage';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import MyBoard from './pages/MyBoard';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
 
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './pages/admin/AdminLayout';
@@ -61,6 +64,32 @@ function App() {
     }
   }, [location.pathname]);
 
+  // Handle document title updates
+  useEffect(() => {
+    const routeTitles = {
+      '/': 'InteDesign | Home',
+      '/explorer': 'InteDesign | AI Explorer',
+      '/portfolio': 'InteDesign | Portfolio',
+      '/services': 'InteDesign | Services',
+      '/about': 'InteDesign | About',
+      '/contact': 'InteDesign | Contact',
+      '/my-board': 'InteDesign | Vision Board',
+      '/login': 'InteDesign | Log In',
+      '/signup': 'InteDesign | Sign Up',
+      '/privacy': 'InteDesign | Privacy Policy',
+      '/terms': 'InteDesign | Terms & Conditions',
+      '/admin': 'InteDesign | Admin Dashboard',
+    };
+    
+    // Find exact match or use default for admin sub-routes
+    let title = routeTitles[location.pathname];
+    if (!title && location.pathname.startsWith('/admin')) {
+      title = 'InteDesign | Admin Dashboard';
+    }
+    
+    document.title = title || 'InteDesign · Interior Design Studio';
+  }, [location.pathname]);
+
   // ── Admin shell (no public nav/footer/3D) ─────────────────────────────────────────────────
   if (admin) {
     return (
@@ -83,8 +112,8 @@ function App() {
 
   // ── Public site ────────────────────────────────────────────────────────────
   return (
-    <div className="relative w-full min-h-screen bg-[#000000] text-[#e0e0e0] font-sans selection:bg-white/20">
-      <div className="fixed inset-0 z-0 pointer-events-none"><Scene /></div>
+    <div className="relative w-full min-h-screen bg-white text-black font-sans selection:bg-yellow-400 selection:text-black">
+
       <Navbar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -95,8 +124,10 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/my-board" element={<MyBoard />} />
-          <Route path="/privacy-policy" element={<LegalPage docKey="privacy_policy" />} />
-          <Route path="/terms-and-conditions" element={<LegalPage docKey="terms_conditions" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
         </Routes>
       </AnimatePresence>
       <Footer />

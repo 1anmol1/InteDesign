@@ -1,6 +1,7 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { AuthContext } from './AuthContext';
 
 const navLinks = [
   { to: '/explorer', label: 'AI Explorer' },
@@ -12,7 +13,9 @@ const navLinks = [
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useContext(AuthContext);
 
   // Close menu on route change
   useEffect(() => {
@@ -31,9 +34,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-[4100] px-6 md:px-10 py-5 flex justify-between items-center isolate">
-        {/* Frosted glass background */}
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-md border-b border-white/5 -z-10" />
+      <nav className="fixed top-0 left-0 w-full z-[4100] px-4 md:px-8 py-3 flex justify-between items-center isolate">
+        {/* Solid white background with black bottom border */}
+        <div className="absolute inset-0 bg-white border-b-4 border-black -z-10" />
 
         <Link
           to="/"
@@ -42,9 +45,9 @@ const Navbar = () => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="relative z-10 text-xl font-serif font-bold tracking-[0.3em] text-white uppercase"
+          className="relative z-10 text-xl font-black tracking-tighter text-black uppercase"
         >
-          Phantasia
+          InteDesign
         </Link>
 
         {/* Desktop Nav Links */}
@@ -55,10 +58,10 @@ const Navbar = () => {
               to={link.to}
               end={link.to === '/'}
               className={({ isActive }) =>
-                `relative text-[11px] font-light tracking-[0.2em] uppercase transition-colors duration-300 pb-1 ${
+                `relative text-[12px] font-bold tracking-widest uppercase transition-colors duration-200 pb-1 ${
                   isActive
-                    ? 'text-white border-b border-white'
-                    : 'text-white/50 hover:text-white/90 border-b border-transparent'
+                    ? 'text-black border-b-4 border-black'
+                    : 'text-gray-500 hover:text-black border-b-4 border-transparent'
                 }`
               }
             >
@@ -67,43 +70,85 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Desktop CTA */}
-        <Link
-          to="/contact"
-          className="relative z-10 hidden md:block text-[10px] font-bold tracking-[0.2em] uppercase px-6 py-2.5 rounded-full transition-all duration-300 active:translate-y-[1px] blur-optimized"
-          style={{
-            background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-            color: '#1f2937',
-            boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3)',
-            willChange: 'backdrop-filter, transform'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
-        >
-          Book a Call
-        </Link>
+        <div className="relative z-10 hidden md:flex items-center gap-4">
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="neopop-btn bg-white px-4 py-2 text-black hover:bg-gray-100 text-sm flex items-center gap-2"
+              >
+                Profile <span className="text-[10px]">▼</span>
+              </button>
+              
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-48 bg-white border-4 border-black shadow-[4px_4px_0px_#000000] flex flex-col z-[5000]"
+                  >
+                    <div className="p-3 border-b-4 border-black bg-gray-50">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Logged in as</p>
+                      <p className="text-sm font-black truncate">{user.fullName || user.email}</p>
+                    </div>
+                    {user.role === 'admin' ? (
+                      <Link to="/admin" onClick={() => setProfileOpen(false)} className="p-3 font-bold uppercase text-xs hover:bg-yellow-200 border-b-4 border-black transition-colors block">
+                        Admin Dashboard
+                      </Link>
+                    ) : (
+                      <Link to="/my-board" onClick={() => setProfileOpen(false)} className="p-3 font-bold uppercase text-xs hover:bg-yellow-200 border-b-4 border-black transition-colors block">
+                        My Vision Board
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => { logout(); setProfileOpen(false); }}
+                      className="p-3 text-left font-bold uppercase text-xs text-red-600 hover:bg-red-100 transition-colors w-full"
+                    >
+                      Log Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              state={{ from: location.pathname }}
+              className="neopop-btn bg-white px-4 py-2 text-black hover:bg-gray-100 text-sm"
+            >
+              Log In
+            </Link>
+          )}
+          
+          <Link
+            to="/contact"
+            className="neopop-btn bg-yellow-400 px-4 py-2 text-black hover:bg-yellow-300 text-sm"
+          >
+            Book a Call
+          </Link>
+        </div>
 
         {/* Mobile Hamburger Button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="relative z-[120] flex md:hidden flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-sm blur-optimized"
-          style={{ willChange: 'transform, backdrop-filter' }}
+          className="relative z-[120] flex md:hidden flex-col justify-center items-center w-12 h-12 gap-1.5 border-4 border-black bg-white shadow-[4px_4px_0px_#000000] active:translate-y-1 active:translate-x-1 active:shadow-none"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
           <motion.span
-            animate={menuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="block w-4 h-[1px] bg-white origin-center"
+            animate={menuOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="block w-6 h-1 bg-black origin-center"
           />
           <motion.span
             animate={menuOpen ? { opacity: 0, x: 20 } : { opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="block w-4 h-[1px] bg-white"
+            transition={{ duration: 0.2 }}
+            className="block w-6 h-1 bg-black"
           />
           <motion.span
-            animate={menuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="block w-4 h-[1px] bg-white origin-center"
+            animate={menuOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="block w-6 h-1 bg-black origin-center"
           />
         </button>
       </nav>
@@ -137,12 +182,10 @@ const Navbar = () => {
                 exit: { x: '100%' }
               }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute top-0 right-0 h-full w-[80vw] max-w-sm bg-[#000000]/95 backdrop-blur-2xl border-l border-white/10 flex flex-col"
+              className="absolute top-0 right-0 h-full w-[80vw] max-w-sm bg-white border-l-4 border-black shadow-[-8px_0px_0px_#000000] flex flex-col"
             >
               {/* Decorative Glows */}
               <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute -top-[10%] -left-[10%] w-[60%] h-[40%] bg-purple-600/10 blur-[100px] rounded-full" />
-                <div className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[40%] bg-cyan-600/10 blur-[100px] rounded-full" />
               </div>
 
               <div className="relative z-10 flex flex-col h-full px-10 pt-32 pb-12">
@@ -161,8 +204,8 @@ const Navbar = () => {
                         to={link.to}
                         end={link.to === '/'}
                         className={({ isActive }) =>
-                          `block py-4 border-b border-white/5 text-sm font-serif tracking-[0.15em] uppercase transition-all ${
-                            isActive ? 'text-white translate-x-1' : 'text-white/40 hover:text-white/80'
+                          `block py-4 border-b-4 border-black text-xl font-black uppercase transition-all ${
+                            isActive ? 'text-black translate-x-2' : 'text-gray-500 hover:text-black'
                           }`
                         }
                       >
@@ -172,7 +215,7 @@ const Navbar = () => {
                             {isActive && (
                               <motion.span 
                                 layoutId="active-dot"
-                                className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]" 
+                                className="w-4 h-4 bg-yellow-400 border-2 border-black shadow-[2px_2px_0px_#000000]" 
                               />
                             )}
                           </span>
@@ -193,19 +236,48 @@ const Navbar = () => {
                 >
                   <Link
                     to="/contact"
-                    className="flex items-center justify-center w-full py-4 text-[11px] font-bold tracking-[0.2em] uppercase rounded-full transition-all active:translate-y-[2px]"
-                    style={{
-                      background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                      color: '#1f2937',
-                      boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.2), 0 6px 8px rgba(0,0,0,0.3)'
-                    }}
+                    onClick={() => setMenuOpen(false)}
+                    className="neopop-btn bg-yellow-400 w-full py-4 text-center text-black block"
                   >
                     Book Your Free Call
                   </Link>
+
+                  {user ? (
+                    <div className="border-4 border-black bg-gray-50 p-4">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Logged in as</p>
+                      <p className="text-sm font-black truncate mb-4">{user.fullName || user.email}</p>
+                      <div className="flex gap-2">
+                        {user.role === 'admin' ? (
+                          <Link to="/admin" onClick={() => setMenuOpen(false)} className="neopop-btn flex-1 bg-white border-2 border-black py-2 text-center text-xs font-black uppercase text-black hover:bg-yellow-200 shadow-[2px_2px_0px_#000000]">
+                            Admin
+                          </Link>
+                        ) : (
+                          <Link to="/my-board" onClick={() => setMenuOpen(false)} className="neopop-btn flex-1 bg-white border-2 border-black py-2 text-center text-xs font-black uppercase text-black hover:bg-yellow-200 shadow-[2px_2px_0px_#000000]">
+                            Vision Board
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => { logout(); setMenuOpen(false); }}
+                          className="neopop-btn flex-1 bg-red-50 border-2 border-black py-2 text-center text-xs font-black uppercase text-red-600 hover:bg-red-100 shadow-[2px_2px_0px_#000000]"
+                        >
+                          Log Out
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      to="/login"
+                      onClick={() => setMenuOpen(false)}
+                      className="neopop-btn bg-white border-4 border-black w-full py-4 text-center text-black block shadow-[4px_4px_0px_#000000] active:translate-y-1 active:translate-x-1 active:shadow-none"
+                    >
+                      Log In
+                    </Link>
+                  )}
+                  
                   <div className="text-center">
-                    <p className="text-[9px] text-white/20 tracking-[0.3em] uppercase mb-1">Get in Touch</p>
-                    <a href="mailto:hello@phantasia.studio" className="text-[11px] text-white/40 hover:text-white transition-colors tracking-widest">
-                      hello@phantasia.studio
+                    <p className="text-sm font-black uppercase mb-1">Get in Touch</p>
+                    <a href="mailto:hello@intedesign.studio" className="text-sm font-bold text-blue-600 underline hover:bg-yellow-200">
+                      hello@intedesign.studio
                     </a>
                   </div>
                 </motion.div>

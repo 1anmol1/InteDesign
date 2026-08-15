@@ -30,10 +30,10 @@ mongoose.connect(process.env.MONGODB_URI)
 async function seedAdmin() {
     try {
         const Admin = require('./models/Admin');
-        const email = (process.env.ADMIN_EMAIL || 'admin@phantasia.studio').toLowerCase();
+        const email = (process.env.ADMIN_EMAIL || 'admin@intedesign.studio').toLowerCase();
         const existing = await Admin.findOne({ email });
         if (!existing) {
-            const password = process.env.ADMIN_PASSWORD || 'phantasia2026';
+            const password = process.env.ADMIN_PASSWORD || 'intedesign2026';
             const passwordHash = await bcrypt.hash(password, 12);
             await Admin.create({ email, passwordHash });
             console.log(`✓ Admin seeded: ${email}`);
@@ -108,9 +108,9 @@ async function seedDefaultData() {
         const rCount = await Review.countDocuments();
         if (rCount === 0) {
             await Review.insertMany([
-                { quote: 'Phantasia transformed our Andheri apartment into a soulful sanctuary. Every detail speaks volumes.', name: 'Ananya & Rohan Desai', location: 'Mumbai', order: 0 },
+                { quote: 'InteDesign transformed our Andheri apartment into a soulful sanctuary. Every detail speaks volumes.', name: 'Ananya & Rohan Desai', location: 'Mumbai', order: 0 },
                 { quote: 'The AI Style Explorer was almost magical — I described my dream and had a full mood board in minutes.', name: 'Karan Mehta', location: 'Delhi NCR', order: 1 },
-                { quote: "Working with Phantasia felt deeply personal. They didn't just design our space — they understood us.", name: 'Priya Nair', location: 'Bengaluru', order: 2 },
+                { quote: "Working with InteDesign felt deeply personal. They didn't just design our space — they understood us.", name: 'Priya Nair', location: 'Bengaluru', order: 2 },
             ]);
             console.log('✓ Default reviews seeded');
         }
@@ -131,7 +131,7 @@ app.use('/api/legal', require('./routes/legal'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/images', require('./routes/images'));
 app.use('/api/visionboard', require('./routes/visionboard'));
-
+app.use('/api/auth', require('./routes/auth'));
 // ── Admin Routes (JWT-protected) ──────────────────────────────────────────────
 app.use('/api/admin', require('./routes/admin/auth'));
 app.use('/api/admin/projects', require('./routes/admin/projects'));
@@ -150,6 +150,11 @@ app.get('/api/pinterest/health', async (req, res) => {
     res.json({ unsplash: hasUnsplash, gemini: hasGemini, mongodb: mongoStatus });
 });
 
-app.get('/', (req, res) => res.send('✦ Phantasia API'));
+// Generic Health Check for Render Wakeup
+app.get('/api/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
+app.get('/', (req, res) => res.send('✦ InteDesign API'));
 
 app.listen(PORT, () => console.log(`✓ Server running on port ${PORT}`));

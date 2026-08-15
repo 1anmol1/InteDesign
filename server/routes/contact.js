@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
         if (transporter) {
             try {
                 await transporter.sendMail({
-                    from: `"Phantasia Website" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+                    from: `"InteDesign Website" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
                     to: process.env.SMTP_USER,
                     subject: `✦ New Lead: ${name} — ${roomType || 'Inquiry'}`,
                     html: `

@@ -17,8 +17,8 @@ const AdminLogin = () => {
     setError('');
     try {
       const res = await axios.post(`${API_BASE_URL}/api/admin/login`, { email, password });
-      localStorage.setItem('phantasia_admin_token', res.data.token);
-      localStorage.setItem('phantasia_admin_email', res.data.email);
+      localStorage.setItem('intedesign_admin_token', res.data.token);
+      localStorage.setItem('intedesign_admin_email', res.data.email);
       navigate('/admin/leads');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Check your credentials.');
@@ -36,7 +36,7 @@ const AdminLogin = () => {
         className="w-full max-w-sm"
       >
         <div className="text-center mb-10">
-          <p className="text-2xl font-serif text-white tracking-[0.3em] uppercase mb-1">Phantasia</p>
+          <p className="text-2xl font-serif text-white tracking-[0.3em] uppercase mb-1">InteDesign</p>
           <p className="text-[10px] text-white/30 tracking-widest uppercase">Admin Console</p>
         </div>
 
@@ -52,7 +52,7 @@ const AdminLogin = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="username"
-              placeholder="admin@phantasia.studio"
+              placeholder="admin@intedesign.studio"
               className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-colors"
             />
           </div>
@@ -80,7 +80,7 @@ const AdminLogin = () => {
           </button>
         </form>
 
-        <p className="text-center text-[10px] text-white/20 mt-6">Phantasia Studio · Admin Access Only</p>
+        <p className="text-center text-[10px] text-white/20 mt-6">InteDesign Studio · Admin Access Only</p>
       </motion.div>
     </div>
   );

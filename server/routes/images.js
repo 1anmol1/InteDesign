@@ -91,6 +91,12 @@ router.get('/proxy', async (req, res) => {
       // If decoding fails, assume it was not encoded
     }
 
+    // If it's a relative URL pointing back to our own server (e.g. /api/images/resize), we need an absolute URL for axios
+    if (decodedUrl.startsWith('/')) {
+      const port = process.env.PORT || 5000;
+      decodedUrl = `http://localhost:${port}${decodedUrl}`;
+    }
+
     const axios = require('axios');
     const response = await axios({
       method: 'get',
@@ -98,7 +104,7 @@ router.get('/proxy', async (req, res) => {
       responseType: 'stream',
       timeout: 10000,
       headers: {
-        'User-Agent': 'Phantasia-Studio/1.0 (+https://phantasia.studio)'
+        'User-Agent': 'InteDesign-Studio/1.0 (+https://intedesign.studio)'
       }
     });
 

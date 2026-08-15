@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../constants';
 
 const ChatInterface = () => {
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Hello! I am Phantasia AI. How can I assist you with your architectural vision today?' }
+        { role: 'assistant', content: 'Hello! I am InteDesign AI. How can I assist you with your architectural vision today?' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -57,7 +57,7 @@ const ChatInterface = () => {
                         <div className="p-4 bg-white/5 border-b border-white/10 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <FaRobot className="text-cyan-400 text-xl" />
-                                <h2 className="text-lg font-semibold tracking-wide">Phantasia Assistant</h2>
+                                <h2 className="text-lg font-semibold tracking-wide">InteDesign Assistant</h2>
                             </div>
                             <button onClick={() => setIsOpen(false)} className="text-white/50 hover:text-white transition-colors">
                                 ✕

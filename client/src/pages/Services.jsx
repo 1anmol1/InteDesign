@@ -32,31 +32,31 @@ const ServiceCard = ({ service, index }) => {
         y: -5,
         transition: { duration: 0.2, ease: "easeOut" } 
       }}
-      className={`relative flex flex-col h-full w-full bg-gradient-to-b ${service.accent || 'from-white/5 to-transparent'} border rounded-[2rem] p-8 overflow-hidden ${
+      className={`relative flex flex-col h-full w-full border-4 border-black p-8 neopop-card shadow-[8px_8px_0px_#000000] ${
         service.isPopular 
-          ? 'border-purple-500/40 ring-2 ring-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.15)] bg-purple-900/10' 
-          : 'border-white/10 hover:border-white/20'
+          ? 'bg-pink-400 text-black' 
+          : 'bg-white text-black'
       }`}
     >
       {service.isPopular && (
-        <div className="absolute top-5 right-7 bg-purple-500 text-white text-[9px] tracking-[0.2em] font-bold uppercase px-3 py-1 rounded-full shadow-lg shadow-purple-500/20 flex items-center gap-1.5 z-10">
-          <FaStar className="text-[8px]" /> Signature 
+        <div className="absolute top-5 right-7 bg-yellow-400 text-black text-xs tracking-widest font-black uppercase px-3 py-1 border-2 border-black shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 z-10">
+          <FaStar className="text-[10px]" /> Signature 
         </div>
       )}
 
       <div className="flex flex-col mb-6">
-        <span className="text-[10px] tracking-[0.3em] font-medium uppercase text-white/30 mb-2">{service.price}</span>
-        <h3 className="text-2xl md:text-3xl font-serif text-white font-medium">{service.title}</h3>
+        <span className="text-xs font-black tracking-widest uppercase text-black mb-2 inline-block bg-yellow-400 w-max px-2 border-2 border-black shadow-[2px_2px_0px_#000000]">{service.price}</span>
+        <h3 className="text-3xl md:text-4xl font-black text-black uppercase tracking-tighter mt-2">{service.title}</h3>
       </div>
 
-      <p className="text-sm text-white/50 leading-relaxed mb-6">
+      <p className="text-sm font-bold text-gray-800 leading-relaxed mb-6">
         {service.description}
       </p>
 
-      <div className="w-full h-[1px] bg-white/10 mb-6" />
+      <div className="w-full h-1 bg-black mb-6" />
       
       <div className="flex-1">
-        <p className="text-[10px] tracking-[0.2em] uppercase text-white/30 mb-4 font-bold">Deliverables & Process</p>
+        <p className="text-sm font-black uppercase text-black border-b-2 border-black inline-block mb-4">Deliverables & Process</p>
         <ul className="space-y-3.5 mb-10">
           {(service.features || []).map((f, fi) => (
             <motion.li 
@@ -67,8 +67,8 @@ const ServiceCard = ({ service, index }) => {
               transition={{ delay: fi * 0.05 + 0.2 }}
               className="flex items-start gap-3.5"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-purple-400/50 mt-1.5 flex-shrink-0" />
-              <span className="text-xs text-white/60 leading-relaxed">{f}</span>
+              <div className="w-2 h-2 border-2 border-black bg-white mt-1 flex-shrink-0" />
+              <span className="text-xs font-bold text-gray-900 leading-relaxed">{f}</span>
             </motion.li>
           ))}
         </ul>
@@ -76,17 +76,11 @@ const ServiceCard = ({ service, index }) => {
 
       <button
         onClick={handleBook}
-        className="w-full py-4 text-[11px] font-bold tracking-[0.25em] uppercase rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn"
-        style={{
-          background: service.isPopular 
-            ? 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)' 
-            : 'rgba(255,255,255,0.06)',
-          color: 'white',
-          border: service.isPopular ? 'none' : '1px solid rgba(255,255,255,0.15)',
-          boxShadow: service.isPopular ? '0 8px 20px -6px rgba(124,58,237,0.5)' : 'none'
-        }}
+        className={`w-full py-4 text-xs font-black uppercase border-4 border-black transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-[4px_4px_0px_#000000] hover:translate-y-1 hover:shadow-none ${
+          service.isPopular ? 'bg-black text-white hover:bg-gray-800' : 'bg-yellow-400 text-black hover:bg-yellow-300'
+        }`}
       >
-        Book This Service <FaArrowRight className="text-[10px] transition-transform duration-300 group-hover/btn:translate-x-1" />
+        Book This Service <FaArrowRight className="text-lg transition-transform duration-300 group-hover/btn:translate-x-1" />
       </button>
     </motion.div>
   );
@@ -110,10 +104,7 @@ const Services = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen pt-32 pb-24 px-6 md:px-16 z-10 relative overflow-hidden">
-        {/* Background elements */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/5 blur-[150px] -z-10" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-600/5 blur-[150px] -z-10" />
+      <div className="min-h-screen pt-32 pb-24 px-6 md:px-16 z-10 relative overflow-hidden bg-white">
 
         <motion.div 
           initial={{ opacity: 0, y: 30 }} 
@@ -121,9 +112,9 @@ const Services = () => {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }} 
           className="text-center mb-24"
         >
-          <p className="text-[11px] tracking-[0.4em] uppercase text-white/30 mb-4 font-bold">Luxury Design Solutions</p>
-          <h1 className="text-5xl md:text-8xl font-serif text-white font-medium tracking-tight">Services</h1>
-          <div className="w-20 h-[1.5px] bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto mt-10" />
+          <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black mb-4">Luxury Design Solutions</p>
+          <h1 className="text-5xl md:text-8xl font-black text-black uppercase tracking-tighter">Services</h1>
+          <div className="w-20 h-2 bg-black mx-auto mt-6" />
         </motion.div>
 
         {/* Dynamic Grid */}
@@ -131,7 +122,7 @@ const Services = () => {
           {isLoading && !services ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-[400px] bg-white/5 rounded-3xl animate-pulse" />
+                <div key={i} className="h-[400px] bg-gray-200 border-4 border-black animate-pulse" />
               ))}
             </div>
           ) : (
@@ -148,27 +139,26 @@ const Services = () => {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-32 max-w-4xl mx-auto rounded-[2.5rem] bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10 p-12 md:p-20 text-center relative overflow-hidden group"
+          className="mt-32 max-w-4xl mx-auto neopop-card bg-blue-400 border-4 border-black p-12 md:p-20 text-center relative overflow-hidden group shadow-[12px_12px_0px_#000000]"
         >
-          <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-          <h2 className="text-3xl md:text-5xl font-serif text-white mb-6 font-light">Not sure which path to take?</h2>
-          <p className="text-white/40 text-sm md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
+          <h2 className="text-4xl md:text-6xl font-black text-black mb-6 uppercase tracking-tighter">Not sure which path to take?</h2>
+          <p className="text-black font-bold text-sm md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
             Every home is unique. Book a complimentary discovery session to discuss your specific needs and create a bespoke design strategy.
           </p>
           <button
             onClick={() => window.location.href = '/contact'}
-            className="px-12 py-5 bg-white text-black text-[11px] font-bold tracking-[0.3em] uppercase rounded-full hover:scale-105 transition-all duration-300 shadow-xl shadow-white/5"
+            className="neopop-btn bg-white text-black px-12 py-5 text-sm hover:bg-gray-100 shadow-[8px_8px_0px_#000000]"
           >
             Schedule Free Call →
           </button>
         </motion.div>
 
         {/* 4-Step Process - Refactored for better mobile display */}
-        <div className="mt-32 text-center opacity-40 px-4">
-           <p className="text-[10px] tracking-widest uppercase mb-10">The Phantasia Signature Process</p>
+        <div className="mt-32 text-center px-4">
+           <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black mb-10">The InteDesign Signature Process</p>
            <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12">
               {['01. Discovery', '02. Curation', '03. Execution', '04. The Reveal'].map(step => (
-                <span key={step} className="whitespace-nowrap font-serif italic text-xl md:text-lg">{step}</span>
+                <span key={step} className="whitespace-nowrap font-black uppercase text-black text-xl md:text-2xl">{step}</span>
               ))}
            </div>
         </div>

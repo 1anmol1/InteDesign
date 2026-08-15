@@ -3,7 +3,7 @@ const router = express.Router();
 const { GoogleGenAI } = require('@google/genai');
 const axios = require('axios');
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({});
 
 // Simple keyword extractor fallback (no AI needed)
 function extractKeywords(prompt) {
@@ -31,9 +31,9 @@ router.post('/search', async (req, res) => {
         // Only call Gemini if this is the first page (no cached keywords)
         if (!keywordsRaw) {
             try {
-                const response = await ai.models.generateContent({
-                    model: 'gemini-2.0-flash',
-                    contents: `You are an expert interior design and architectural AI. 
+                const interaction = await ai.interactions.create({
+                    model: 'gemini-3.6-flash',
+                    input: `You are an expert interior design and architectural AI. 
                     
                     USER PROMPT: "${prompt}"
                     ${contextPrompt ? `PREVIOUS CONTEXT: "${contextPrompt}"` : ""}
@@ -49,14 +49,11 @@ router.post('/search', async (req, res) => {
                       "keywords": "concise keywords separated by commas", 
                       "reply": "A brief natural reply (max 20 words) confirming the specific design vibe.", 
                       "suggestions": ["2-3 related search queries"]
-                    }`,
-                    config: {
-                        responseMimeType: "application/json",
-                    }
+                    }`
                 });
 
                 try {
-                    aiData = JSON.parse(response.text);
+                    aiData = JSON.parse(interaction.output_text);
                     keywordsRaw = aiData.keywords;
                 } catch (parseErr) {
                     console.error('Gemini JSON Parse Error:', parseErr);

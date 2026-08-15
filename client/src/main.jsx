@@ -14,10 +14,14 @@ const queryClient = new QueryClient({
   },
 });
 
+import { AuthProvider } from './components/AuthContext'
+
 createRoot(document.getElementById('root')).render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </QueryClientProvider>
 )

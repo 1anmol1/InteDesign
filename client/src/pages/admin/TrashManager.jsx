@@ -24,7 +24,7 @@ const TrashManager = () => {
   const fetchTrash = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('phantasia_admin_token');
+      const token = localStorage.getItem('intedesign_admin_token');
       const res = await axios.get(`${API_BASE_URL}/api/admin/trash`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -73,7 +73,7 @@ const TrashManager = () => {
       isPurge: false,
       onConfirm: async () => {
         try {
-          const token = localStorage.getItem('phantasia_admin_token');
+          const token = localStorage.getItem('intedesign_admin_token');
           const toRestore = items.filter(i => selections.includes(i._id)).map(i => ({ id: i._id, type: i.type }));
           await axios.post(`${API_BASE_URL}/api/admin/trash/restore`, { items: toRestore }, {
             headers: { Authorization: `Bearer ${token}` }
@@ -97,7 +97,7 @@ const TrashManager = () => {
       isPurge: true,
       onConfirm: async () => {
         try {
-          const token = localStorage.getItem('phantasia_admin_token');
+          const token = localStorage.getItem('intedesign_admin_token');
           const toPurge = items.filter(i => selections.includes(i._id)).map(i => ({ id: i._id, type: i.type }));
           await axios.post(`${API_BASE_URL}/api/admin/trash/purge`, { items: toPurge }, {
             headers: { Authorization: `Bearer ${token}` }

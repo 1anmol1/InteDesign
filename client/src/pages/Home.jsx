@@ -6,7 +6,7 @@ import { FaPencilRuler, FaCouch, FaHeart } from 'react-icons/fa';
 import axios from 'axios';
 import { API_BASE_URL } from '../constants';
 import PageTransition from '../components/PageTransition';
-import Scene3DBackground from '../components/Scene3dbackground';
+
 
 /* ─── AI Explorer Demo: self-contained looping animation ─── */
 const DEMO_PROMPTS = [
@@ -110,23 +110,22 @@ const AiExplorerDemo = () => {
   }, []);
 
   return (
-    <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20">
+    <div className="neopop-card p-0">
       {/* Browser chrome */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/8 bg-white/3">
-        <span className="w-3 h-3 rounded-full bg-red-500/50" />
-        <span className="w-3 h-3 rounded-full bg-amber-500/50" />
-        <span className="w-3 h-3 rounded-full bg-green-500/50" />
-        <span className="flex-1 text-center text-[9px] text-white/20 font-mono">phantasia.studio/explorer</span>
+      <div className="flex items-center gap-2 px-4 py-3 border-b-4 border-black bg-gray-100">
+        <span className="w-3 h-3 border-2 border-black bg-red-500" />
+        <span className="w-3 h-3 border-2 border-black bg-yellow-400" />
+        <span className="w-3 h-3 border-2 border-black bg-green-500" />
+        <span className="flex-1 text-center text-xs text-black font-bold font-mono">intedesign.studio/explorer</span>
       </div>
 
       <div className="p-4">
         {/* Search bar */}
-        <div className="relative flex items-center gap-3 bg-white/5 border border-white/20 rounded-xl px-4 py-3 mb-4 overflow-hidden group">
-          <div className="absolute inset-0 w-full h-full border-t-[1px] border-l-[1px] border-white/40 scale-[1.05] -translate-x-full transition-all duration-[2000ms] ease-linear repeat-infinite animate-[spin_4s_linear_infinite]" />
-          <span className="text-white/40 text-sm relative z-10">✦</span>
-          <span className="text-[11px] md:text-sm text-white font-light flex-1 min-h-[20px] block relative z-10 whitespace-nowrap overflow-hidden">
+        <div className="relative flex items-center gap-3 bg-white border-4 border-black px-4 py-3 mb-4 group shadow-[4px_4px_0px_#000000]">
+          <span className="text-black text-sm relative z-10 font-black">✦</span>
+          <span className="text-[11px] md:text-sm text-black font-bold flex-1 min-h-[20px] block relative z-10 whitespace-nowrap overflow-hidden">
             {prompt}
-            <span className="animate-pulse text-white/70">|</span>
+            <span className="animate-pulse text-black">|</span>
           </span>
           <motion.span
             animate={btnFlash
@@ -134,7 +133,7 @@ const AiExplorerDemo = () => {
               : {}
             }
             transition={{ duration: 0.4 }}
-            className="text-[10px] tracking-widest text-[#1f2937] bg-gradient-to-br from-[#f8f9fa] to-[#9ca3af] uppercase px-3 py-1 rounded-lg font-bold shadow-md relative z-10"
+            className="text-xs text-black bg-yellow-400 uppercase px-3 py-1 font-black border-2 border-black"
           >
             Inspire
           </motion.span>
@@ -143,9 +142,9 @@ const AiExplorerDemo = () => {
         {/* Image grid — fixed layout, 2 col × 3 row */}
         <div className="grid grid-cols-3 gap-2">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="aspect-[4/5] rounded-lg overflow-hidden bg-white/5 relative">
+            <div key={i} className="aspect-[4/5] border-2 border-black overflow-hidden bg-gray-100 relative">
               {phase === 'skeleton' && (
-                <div className="absolute inset-0 bg-white/8 animate-pulse rounded-lg" />
+                <div className="absolute inset-0 bg-gray-300 animate-pulse" />
               )}
               {displayedImages[i] && (phase === 'images' || phase === 'idle') && visibleImages.includes(i) && (
                 <motion.img
@@ -177,7 +176,7 @@ const FALLBACK_PROJECTS = [
 
 const FALLBACK_REVIEWS = [
   { _id: 'f1', name: 'Priyal S.', location: 'Mumbai', quote: 'The AI Style Explorer saved us weeks of mood boarding. We could literally show Aria exactly what we wanted before our first meeting.', stars: 5 },
-  { _id: 'f2', name: 'Rahul & Neha', location: 'Bangalore', quote: 'Phantasia transformed our dark, cramped kitchen into a marble-and-light sanctuary. The process was completely stress-free.', stars: 5 },
+  { _id: 'f2', name: 'Rahul & Neha', location: 'Bangalore', quote: 'InteDesign transformed our dark, cramped kitchen into a marble-and-light sanctuary. The process was completely stress-free.', stars: 5 },
   { _id: 'f3', name: 'Vikram Adani', location: 'Delhi', quote: 'Aria has an incredible eye for detail. Every corner of our new villa feels intentional and luxurious. Highly recommend the Full-Service Remodel.', stars: 5 },
 ];
 
@@ -198,6 +197,8 @@ const processSteps = [
 
 /* ─── Overlapping Card Carousel (mobile-first) ─── */
 const TestimonialsCarousel = ({ items }) => {
+  if (!Array.isArray(items) || items.length === 0) return null;
+
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(1); // 1 = left slide
   const [dragging, setDragging] = useState(false);
@@ -247,10 +248,10 @@ const TestimonialsCarousel = ({ items }) => {
         <AnimatePresence mode="popLayout">
           <motion.div
             key={`back-${nextIdx}`}
-            className="absolute inset-y-4 -right-4 left-4 bg-white/4 border border-white/8 rounded-2xl"
+            className="absolute inset-y-4 -right-4 left-4 bg-gray-200 border-4 border-black shadow-[4px_4px_0px_#000000]"
             style={{ transformOrigin: 'left center' }}
-            initial={{ x: 40, scale: 0.92, opacity: 0.4 }}
-            animate={{ x: 60, scale: 0.93, opacity: 0.6 }}
+            initial={{ x: 40, scale: 0.92, opacity: 0.8 }}
+            animate={{ x: 60, scale: 0.93, opacity: 1 }}
             exit={{ x: -60, scale: 0.88, opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
           />
@@ -260,7 +261,7 @@ const TestimonialsCarousel = ({ items }) => {
         <AnimatePresence mode="popLayout">
           <motion.div
             key={`front-${active}`}
-            className="absolute inset-0 bg-white/6 border border-white/12 rounded-2xl p-6 backdrop-blur-sm flex flex-col justify-between"
+            className="absolute inset-0 bg-white border-4 border-black p-6 flex flex-col justify-between shadow-[4px_4px_0px_#000000]"
             initial={{ x: '100%', opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '-110%', opacity: 0 }}
@@ -268,14 +269,14 @@ const TestimonialsCarousel = ({ items }) => {
           >
             <div>
               <div className="flex gap-1 mb-5">
-                {[...Array(5)].map((_, s) => <FaStar key={s} className="text-amber-400/70 text-xs" />)}
+                {[...Array(5)].map((_, s) => <FaStar key={s} className="text-yellow-400 text-sm" />)}
               </div>
-              <p className="text-base text-white/70 leading-relaxed italic">"{items[active].quote}"</p>
+              <p className="text-base text-black font-bold leading-relaxed italic">"{items[active].quote}"</p>
             </div>
             <div className="flex items-center justify-between mt-6">
               <div>
-                <p className="text-sm font-medium text-white/80">{items[active].name}</p>
-                <p className="text-[10px] text-white/25 tracking-wider uppercase mt-1">{items[active].location}</p>
+                <p className="text-sm font-black text-black">{items[active].name}</p>
+                <p className="text-[10px] text-gray-500 font-bold tracking-wider uppercase mt-1">{items[active].location}</p>
               </div>
               {/* Dot indicators */}
               <div className="flex gap-1.5">
@@ -283,7 +284,7 @@ const TestimonialsCarousel = ({ items }) => {
                   <button
                     key={i}
                     onClick={() => { setDirection(i > active ? 1 : -1); setActive(i); }}
-                    className={`rounded-full transition-all duration-300 ${i === active ? 'w-4 h-1.5 bg-purple-400' : 'w-1.5 h-1.5 bg-white/20'
+                    className={`rounded-full transition-all duration-300 border-2 border-black ${i === active ? 'w-4 h-2 bg-yellow-400' : 'w-2 h-2 bg-white'
                       }`}
                   />
                 ))}
@@ -314,20 +315,20 @@ const TestimonialsCarousel = ({ items }) => {
               hidden: { opacity: 0, scale: 0.95, y: 20 },
               show: { opacity: 1, scale: 1, y: 0 }
             }}
-            whileHover={{ y: -8, scale: 1.02, backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.2)' }}
+            whileHover={{ y: -8, scale: 1.02, backgroundColor: '#FFCE00' }}
             transition={{
               show: { duration: 0.8, ease: "easeOut" },
               hover: { duration: 0.3, ease: "easeInOut" }
             }}
-            className="bg-white/4 border border-white/8 rounded-2xl p-7 backdrop-blur-sm shadow-xl"
+            className="neopop-card bg-white p-7"
           >
             <div className="flex gap-1 mb-4">
-              {[...Array(5)].map((_, s) => <FaStar key={s} className="text-amber-400/70 text-xs" />)}
+              {[...Array(5)].map((_, s) => <FaStar key={s} className="text-yellow-400 text-sm" />)}
             </div>
-            <p className="text-sm text-white/55 leading-relaxed italic mb-6">"{t.quote}"</p>
+            <p className="text-sm text-black font-bold leading-relaxed italic mb-6">"{t.quote}"</p>
             <div>
-              <p className="text-xs font-medium text-white/80">{t.name}</p>
-              <p className="text-[10px] text-white/25 tracking-wider uppercase">{t.location}</p>
+              <p className="text-xs font-black text-black">{t.name}</p>
+              <p className="text-[10px] text-gray-500 font-bold tracking-wider uppercase">{t.location}</p>
             </div>
           </motion.div>
         ))}
@@ -371,8 +372,8 @@ const Home = () => {
       axios.get(`${API_BASE_URL}/api/projects?featured=true`),
       axios.get(`${API_BASE_URL}/api/reviews`)
     ]).then(([projectsRes, reviewsRes]) => {
-      setFetchedProjects(projectsRes.data.length > 0 ? projectsRes.data.slice(0, 6) : FALLBACK_PROJECTS);
-      setFetchedReviews(reviewsRes.data.length > 0 ? reviewsRes.data : FALLBACK_REVIEWS);
+      setFetchedProjects(Array.isArray(projectsRes.data) && projectsRes.data.length > 0 ? projectsRes.data.slice(0, 6) : FALLBACK_PROJECTS);
+      setFetchedReviews(Array.isArray(reviewsRes.data) && reviewsRes.data.length > 0 ? reviewsRes.data : FALLBACK_REVIEWS);
     }).catch(err => {
       console.error('Home load error:', err);
       // Ensure fallbacks on error
@@ -397,22 +398,21 @@ const Home = () => {
           className="relative h-[100svh] flex flex-col justify-center items-center z-10 overflow-hidden snap-start snap-always"
         >
           {/* Background image & Reveal Overlay */}
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-white">
             <motion.div
-              initial={alreadyVisited ? { scale: 1 } : { scale: 1.1, filter: 'blur(10px)' }}
-              animate={{ scale: 1, filter: 'blur(0px)' }}
+              initial={alreadyVisited ? { scale: 1 } : { scale: 1.1, filter: 'grayscale(100%) blur(10px)' }}
+              animate={{ scale: 1, filter: 'grayscale(0%) blur(0px)' }}
               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full h-full"
+              className="w-full h-full p-4"
             >
-              <img
-                src="/images/hero_room.png"
-                alt="Luxury interior design transformation"
-                className="w-full h-full object-cover"
-              />
+              <div className="w-full h-full border-4 border-black overflow-hidden relative">
+                <img
+                  src="/images/hero_room.png"
+                  alt="Luxury interior design transformation"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </motion.div>
-
-            {/* Dark Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-[#000000]" />
 
             {/* Premium Reveal Wipe (only for first visit) */}
             {!alreadyVisited && (
@@ -420,84 +420,70 @@ const Home = () => {
                 initial={{ x: '0%' }}
                 animate={{ x: '100%' }}
                 transition={{ delay: 0.2, duration: 1.2, ease: [0.77, 0, 0.175, 1] }}
-                className="absolute inset-0 bg-[#000000] z-50 pointer-events-none"
+                className="absolute inset-0 bg-white z-50 pointer-events-none border-r-4 border-black"
               >
-                {/* Reveal line glow */}
-                <div className="absolute top-0 left-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-white/50 to-transparent shadow-[0_0_20px_rgba(255,255,255,0.3)]" />
               </motion.div>
             )}
           </div>
 
           {/* Content */}
           <div className={`relative z-[60] text-center px-6 max-w-4xl mx-auto transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}>
-            <motion.h1
-              initial={alreadyVisited ? false : { opacity: 0, x: -20, y: 20 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ delay: alreadyVisited ? 0 : 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-medium text-white leading-[1.05] mb-10 sm:mb-6"
-            >
-              Design Your Dream Space,<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">
-                Powered by Your Imagination.
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={alreadyVisited ? false : { opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: alreadyVisited ? 0 : 1.2, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-sm md:text-base text-white/50 font-light max-w-xl mx-auto leading-relaxed mb-14 sm:mb-10"
-            >
-              Experience the future of interior design. Tell us what you love,
-              and our AI will visualize it instantly.
-            </motion.p>
-
-            <motion.div
-              initial={alreadyVisited ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: alreadyVisited ? 0 : 1.4, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-5 sm:gap-3 justify-center"
-            >
-              {/* AI Explorer Button (Silver 3D Style) */}
-              <Link
-                to="/explorer"
-                className="px-6 py-3.5 sm:px-8 sm:py-3.5 rounded-full text-[10px] sm:text-xs tracking-[0.2em] font-bold uppercase transition-all duration-300 active:translate-y-[2px] active:shadow-inner flex items-center justify-center text-center w-full sm:w-auto blur-optimized"
-                style={{
-                  background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                  color: '#1f2937',
-                  boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3)',
-                  willChange: 'transform, backdrop-filter'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
+            <div className="neopop-card p-8 md:p-12 mb-8 inline-block">
+              <motion.h1
+                initial={alreadyVisited ? false : { opacity: 0, x: -20, y: 20 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ delay: alreadyVisited ? 0 : 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                className="text-4xl md:text-7xl font-black text-black uppercase leading-none mb-6 tracking-tighter"
               >
-                Try the AI Style Explorer →
-              </Link>
-              <Link
-                to="/portfolio"
-                className="px-6 py-3.5 sm:px-8 sm:py-3.5 border border-white/30 text-white text-[10px] sm:text-xs tracking-[0.25em] uppercase hover:bg-white/10 hover:border-white/60 transition-all duration-300 rounded-full backdrop-blur-sm blur-optimized"
-                style={{ willChange: 'transform, backdrop-filter' }}
+                Design Your<br />Dream Space
+              </motion.h1>
+
+              <motion.p
+                initial={alreadyVisited ? false : { opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: alreadyVisited ? 0 : 1.2, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                className="text-sm md:text-xl text-gray-700 font-bold max-w-xl mx-auto mb-10"
               >
-                View Portfolio
-              </Link>
-            </motion.div>
+                Experience the future of interior design. Tell us what you love,
+                and our AI will visualize it instantly.
+              </motion.p>
+
+              <motion.div
+                initial={alreadyVisited ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: alreadyVisited ? 0 : 1.4, duration: 0.8 }}
+                className="flex flex-col sm:flex-row gap-5 sm:gap-4 justify-center"
+              >
+                <Link
+                  to="/explorer"
+                  className="neopop-btn bg-yellow-400 px-8 py-4 text-black text-sm hover:bg-yellow-300 w-full sm:w-auto"
+                >
+                  Try AI Style Explorer →
+                </Link>
+                <Link
+                  to="/portfolio"
+                  className="neopop-btn bg-white px-8 py-4 text-black text-sm hover:bg-gray-100 w-full sm:w-auto"
+                >
+                  View Portfolio
+                </Link>
+              </motion.div>
+            </div>
           </div>
 
           <motion.div
             initial={alreadyVisited ? { opacity: 0.1 } : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: alreadyVisited ? 0.2 : 2.5, duration: 1 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce"
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce bg-white border-2 border-black p-2 rounded-full shadow-[2px_2px_0px_#000000]"
           >
-            <span className="text-[9px] tracking-[0.3em] uppercase text-white/20">Scroll</span>
-            <FaArrowDown className="text-white/20 text-sm" />
+            <FaArrowDown className="text-black text-sm" />
           </motion.div>
         </motion.section>
 
         {/* ═══════════════════════════════════════════════════════════
             2. TRUST BUILDER — About Teaser
         ═══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-10 px-6 md:px-16 snap-start snap-always">
+        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-20 px-6 md:px-16 snap-start snap-always bg-yellow-400 border-y-4 border-black">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
             {/* AI Generated image placeholder */}
             <motion.div
@@ -507,19 +493,18 @@ const Home = () => {
               viewport={{ once: true }}
               className="relative"
             >
-              <Link to="/about" className="block overflow-hidden rounded-2xl aspect-[4/5] border border-white/10 group/trust-img relative">
-                <img src="/images/designer.png" alt="Aria Voss – Principal Designer" className="w-full h-full object-cover transition-transform duration-700 group-hover/trust-img:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
+              <Link to="/about" className="block overflow-hidden neopop-card group/trust-img relative">
+                <img src="/images/designer.png" alt="Aria Voss – Principal Designer" className="w-full h-full object-cover transition-transform duration-700 group-hover/trust-img:scale-105" />
               </Link>
               {/* Stats pill */}
-              <div className="absolute -bottom-5 -right-5 bg-black/80 backdrop-blur-lg border border-white/10 rounded-2xl px-6 py-4 grid grid-cols-2 gap-4">
+              <div className="absolute -bottom-6 -right-6 neopop-card bg-white px-6 py-4 grid grid-cols-2 gap-6 z-10">
                 <div className="text-center">
-                  <p className="text-xl font-serif text-white">10k+</p>
-                  <p className="text-[9px] text-white/30 uppercase tracking-wide">Designs</p>
+                  <p className="text-3xl font-black text-black">10k+</p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Designs</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-serif text-white">AI</p>
-                  <p className="text-[9px] text-white/30 uppercase tracking-wide">Powered</p>
+                  <p className="text-3xl font-black text-black">AI</p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Powered</p>
                 </div>
               </div>
             </motion.div>
@@ -532,17 +517,17 @@ const Home = () => {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <p className="text-[10px] tracking-[0.35em] uppercase text-white/30">Meet the Designer</p>
-              <h2 className="text-4xl md:text-5xl font-serif text-white font-light leading-tight">
-                Your home should reflect <em>you</em>, not a catalog.
+              <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black">Meet the Designer</p>
+              <h2 className="text-4xl md:text-6xl font-black text-black leading-tight uppercase tracking-tighter">
+                Your home should reflect you, not a catalog.
               </h2>
-              <div className="w-12 h-[1px] bg-white/20" />
-              <p className="text-base text-white/50 leading-relaxed">
-                We put you at the center of the design process to create spaces that breathe life into your daily routine. Every project starts with listening deeply until we understand not just how you want your space to look, but how you want to <em>feel</em> inside it.
+              <div className="w-16 h-2 bg-black" />
+              <p className="text-lg font-bold text-gray-800 leading-relaxed">
+                We put you at the center of the design process to create spaces that breathe life into your daily routine. Every project starts with listening deeply until we understand not just how you want your space to look, but how you want to feel inside it.
               </p>
               <Link
                 to="/about"
-                className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-white border-b border-white/20 hover:border-white pb-1 transition-all"
+                className="neopop-btn bg-white px-8 py-4 text-black text-sm mt-4 inline-block hover:bg-gray-100"
               >
                 Meet Your Designer →
               </Link>
@@ -553,7 +538,7 @@ const Home = () => {
         {/* ═══════════════════════════════════════════════════════════
             3. AI FEATURE HIGHLIGHT
         ═══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-10 px-6 md:px-16 bg-gradient-to-b from-transparent via-purple-950/15 to-transparent snap-start snap-always">
+        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-20 px-6 md:px-16 snap-start snap-always bg-white">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -577,24 +562,17 @@ const Home = () => {
               viewport={{ once: true }}
               className="space-y-6 order-1 md:order-2"
             >
-              <p className="text-[10px] tracking-[0.35em] uppercase text-purple-400/60">Powered by Gemini AI</p>
-              <h2 className="text-4xl md:text-5xl font-serif text-white font-light leading-tight">
+              <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black">Powered by Gemini AI</p>
+              <h2 className="text-4xl md:text-6xl font-black text-black leading-tight uppercase tracking-tighter">
                 Can't quite picture it? Let our AI do the heavy lifting.
               </h2>
-              <div className="w-12 h-[1px] bg-purple-400/30" />
-              <p className="text-base text-white/50 leading-relaxed">
+              <div className="w-16 h-2 bg-black" />
+              <p className="text-lg font-bold text-gray-800 leading-relaxed">
                 Stop endlessly scrolling. Type in your vibe, your favorite colors, or a feeling and our smart design engine instantly pulls curated inspiration from our approved design vaults.
               </p>
               <Link
                 to="/explorer"
-                className="inline-block px-10 py-4 text-[11px] font-bold tracking-[0.2em] uppercase rounded-full transition-all duration-300 active:translate-y-[2px]"
-                style={{
-                  background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                  color: '#1f2937',
-                  boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.2), 0 6px 8px rgba(0,0,0,0.3)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
+                className="neopop-btn bg-pink-400 px-8 py-4 text-black text-sm mt-4 inline-block hover:bg-pink-300"
               >
                 Generate Your Vision Board →
               </Link>
@@ -605,10 +583,7 @@ const Home = () => {
         {/* ═══════════════════════════════════════════════════════════
             NEW: VISION BOARD CTA (Design Blueprint)
         ═══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-16 md:py-28 px-6 md:px-16 lg:px-24 overflow-hidden">
-          {/* Subtle Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-600/5 rounded-full blur-[120px] pointer-events-none" />
-
+        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-16 md:py-28 px-6 md:px-16 lg:px-24 overflow-hidden bg-blue-400 border-y-4 border-black">
           <div className="w-full flex flex-col md:flex-row items-center justify-between gap-12 md:gap-20">
 
             <motion.div
@@ -618,31 +593,25 @@ const Home = () => {
               viewport={{ once: true }}
               className="flex-1 space-y-6 max-w-2xl"
             >
-              <p className="text-[10px] tracking-[0.35em] uppercase text-white/30">Your Design Blueprint</p>
-              <h2 className="text-3xl md:text-6xl font-serif text-white font-light leading-[1.1]">
+              <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black">Your Design Blueprint</p>
+              <h2 className="text-4xl md:text-6xl font-black text-black leading-tight uppercase tracking-tighter">
                 Don't just dream.<br />
-                <span className="italic">Curate</span> your vision.
+                Curate your vision.
               </h2>
-              <p className="text-sm md:text-base text-white/40 leading-relaxed max-w-lg">
+              <div className="w-16 h-2 bg-black" />
+              <p className="text-lg font-bold text-black leading-relaxed max-w-lg">
                 Your inspirations deserve a home. Save your favorite AI Explorer concepts and portfolio pieces into a unified vision board. It's the ultimate blueprint for your future space.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link
                   to="/explorer"
-                  className="px-8 py-3.5 md:px-10 md:py-4 text-[11px] font-bold tracking-[0.2em] uppercase rounded-full transition-all duration-300 active:translate-y-[2px] text-center"
-                  style={{
-                    background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                    color: '#1f2937',
-                    boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.2), 0 6px 8px rgba(0,0,0,0.3)'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
+                  className="neopop-btn bg-white px-8 py-4 text-black text-sm text-center hover:bg-gray-100"
                 >
                   Start Curating
                 </Link>
                 <Link
                   to="/my-board"
-                  className="px-8 py-3.5 bg-white/5 border border-white/20 text-white text-[11px] font-bold tracking-widest uppercase rounded-full hover:bg-white/10 transition-all text-center"
+                  className="neopop-btn bg-yellow-400 px-8 py-4 text-black text-sm text-center hover:bg-yellow-300"
                 >
                   View My Board
                 </Link>
@@ -656,37 +625,29 @@ const Home = () => {
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.02, rotate: -1 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true }}
                 className="w-full flex justify-center"
               >
-                <div className="relative aspect-square md:aspect-[4/3] w-[80vw] max-w-[280px] md:w-full md:max-w-[480px] transition-transform duration-500 md:group-hover/vision-cta:-translate-y-2">
-
-                  {/* Background Layer (slanted) */}
-                  <div className="absolute inset-0 bg-[#1a1a1a] rounded-3xl rotate-3 scale-105 border border-white/10 transition-transform duration-500 md:group-hover/vision-cta:rotate-6 md:group-hover/vision-cta:scale-110" />
-
+                <div className="relative aspect-square md:aspect-[4/3] w-[80vw] max-w-[280px] md:w-full md:max-w-[480px] transition-transform duration-500">
                   {/* Main Card Layer */}
-                  <div className="absolute inset-0 bg-[#0a0a0a] rounded-3xl -rotate-2 border border-white/10 overflow-hidden shadow-2xl transition-transform duration-500 md:group-hover/vision-cta:-rotate-4 md:group-hover/vision-cta:scale-105">
+                  <div className="neopop-card absolute inset-0 bg-white p-4">
                     <img
                       src="/images/Ai Exp Dep/2.png"
                       alt="Vision Board Preview"
-                      className="w-full h-full object-cover opacity-80 md:opacity-50 transition-opacity duration-500 md:group-hover/vision-cta:opacity-90"
+                      className="w-full h-full object-cover border-4 border-black"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                   </div>
-
                   {/* Center Content */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10 pointer-events-none w-full">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10 w-full">
                     <motion.div
                       whileHover={{ scale: 1.2, rotate: 15 }}
-                      className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-lg"
+                      className="w-16 h-16 md:w-20 md:h-20 bg-pink-400 border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_#000000]"
                     >
-                      <FaHeart className="text-pink-500 text-lg md:text-2xl animate-pulse" />
+                      <FaHeart className="text-black text-2xl md:text-3xl" />
                     </motion.div>
-                    <p className="text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white font-bold drop-shadow-lg text-center">Vision Board</p>
                   </div>
-
                 </div>
               </motion.div>
             </Link>
@@ -696,7 +657,7 @@ const Home = () => {
         {/* ═══════════════════════════════════════════════════════════
             4. PORTFOLIO TEASER
         ═══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-10 px-6 md:px-16 snap-start snap-always">
+        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-20 px-6 md:px-16 snap-start snap-always bg-white">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -704,9 +665,9 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-center mb-14 max-w-xl mx-auto"
           >
-            <p className="text-[10px] tracking-[0.35em] uppercase text-white/30 mb-3">Selected Work</p>
-            <h2 className="text-4xl md:text-5xl font-serif text-white font-light mb-4">Spaces We've Transformed.</h2>
-            <p className="text-sm text-white/40 leading-relaxed">From concept to the final throw pillow. See how we've brought our clients' visions to life.</p>
+            <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black mb-4">Selected Work</p>
+            <h2 className="text-4xl md:text-6xl font-black text-black leading-tight uppercase tracking-tighter mb-4">Spaces We've Transformed.</h2>
+            <p className="text-lg font-bold text-gray-800 leading-relaxed">From concept to the final throw pillow. See how we've brought our clients' visions to life.</p>
           </motion.div>
 
           {/* Animated Marquee Grid */}
@@ -737,48 +698,52 @@ const Home = () => {
               `}
             </style>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               {/* Top Row (Moving Left) */}
-              <div className="animate-marquee-left gap-4">
+              <div className="animate-marquee-left gap-6 px-3">
                 {[...PORTFOLIO_ITEMS, ...PORTFOLIO_ITEMS].map((item, i) => (
                   <Link
                     key={`row1-${i}`}
                     to="/portfolio"
-                    className="w-64 md:w-80 aspect-[4/3] rounded-xl overflow-hidden flex-shrink-0 group relative cursor-pointer"
+                    className="w-64 md:w-80 aspect-[4/3] flex-shrink-0 group relative cursor-pointer neopop-card p-2"
                   >
-                    <img
-                      src={resolveImage(item.img, 600)}
-                      alt={item.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                      <p className="text-white font-serif text-lg translate-y-2 group-hover:translate-y-0 transition-transform duration-500">{item.title}</p>
-                      <p className="text-white/50 text-[10px] tracking-[0.2em] uppercase translate-y-2 group-hover:translate-y-0 transition-transform duration-500 delay-75">{item.location}</p>
+                    <div className="w-full h-full border-4 border-black overflow-hidden relative">
+                      <img
+                        src={resolveImage(item.img, 600)}
+                        alt={item.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-yellow-400 opacity-0 group-hover:opacity-90 transition-opacity duration-300 flex flex-col justify-center items-center p-6 border-4 border-transparent group-hover:border-black">
+                        <p className="text-black font-black text-xl text-center uppercase tracking-tighter">{item.title}</p>
+                        <p className="text-black text-xs font-bold uppercase mt-2">{item.location}</p>
+                      </div>
                     </div>
                   </Link>
                 ))}
               </div>
 
               {/* Bottom Row (Moving Right) */}
-              <div className="animate-marquee-right gap-4">
+              <div className="animate-marquee-right gap-6 px-3">
                 {[...PORTFOLIO_ITEMS, ...PORTFOLIO_ITEMS].reverse().map((item, i) => (
                   <Link
                     key={`row2-${i}`}
                     to="/portfolio"
-                    className="w-64 md:w-80 aspect-[4/3] rounded-xl overflow-hidden flex-shrink-0 group relative cursor-pointer"
+                    className="w-64 md:w-80 aspect-[4/3] flex-shrink-0 group relative cursor-pointer neopop-card p-2"
                   >
-                    <img
-                      src={resolveImage(item.img, 600)}
-                      alt={item.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                      <p className="text-white font-serif text-lg translate-y-2 group-hover:translate-y-0 transition-transform duration-500">{item.title}</p>
-                      <p className="text-white/50 text-[10px] tracking-[0.2em] uppercase translate-y-2 group-hover:translate-y-0 transition-transform duration-500 delay-75">{item.location}</p>
+                    <div className="w-full h-full border-4 border-black overflow-hidden relative">
+                      <img
+                        src={resolveImage(item.img, 600)}
+                        alt={item.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-blue-400 opacity-0 group-hover:opacity-90 transition-opacity duration-300 flex flex-col justify-center items-center p-6 border-4 border-transparent group-hover:border-black">
+                        <p className="text-black font-black text-xl text-center uppercase tracking-tighter">{item.title}</p>
+                        <p className="text-black text-xs font-bold uppercase mt-2">{item.location}</p>
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -789,7 +754,7 @@ const Home = () => {
           <div className="text-center">
             <Link
               to="/portfolio"
-              className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-white/40 hover:text-white border-b border-white/20 hover:border-white pb-1 transition-all"
+              className="neopop-btn bg-white px-8 py-4 text-black text-sm mt-4 inline-block hover:bg-gray-100"
             >
               View Full Portfolio →
             </Link>
@@ -799,7 +764,7 @@ const Home = () => {
         {/* ═══════════════════════════════════════════════════════════
             5. HOW IT WORKS — 3 Steps
         ═══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-10 px-6 md:px-16 snap-start snap-always">
+        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center py-20 px-6 md:px-16 snap-start snap-always bg-yellow-400 border-y-4 border-black">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -807,15 +772,15 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-center mb-14 max-w-xl mx-auto"
           >
-            <p className="text-[10px] tracking-[0.35em] uppercase text-white/30 mb-3">The Process</p>
-            <h2 className="text-4xl md:text-5xl font-serif text-white font-light mb-4">A Seamless, Stress-Free Process.</h2>
-            <p className="text-sm text-white/40 leading-relaxed">Whether you need a quick virtual consultation or a full-scale remodel, our process is entirely built around your timeline and budget.</p>
+            <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black mb-4">The Process</p>
+            <h2 className="text-4xl md:text-6xl font-black text-black leading-tight uppercase tracking-tighter mb-4">A Seamless, Stress-Free Process.</h2>
+            <p className="text-lg font-bold text-gray-800 leading-relaxed">Whether you need a quick virtual consultation or a full-scale remodel, our process is entirely built around your timeline and budget.</p>
           </motion.div>
 
           {/* 3-step horizontal flow */}
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {/* Connecting line (desktop) */}
-            <div className="hidden md:block absolute top-10 left-1/6 right-1/6 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent" style={{ left: '18%', right: '18%' }} />
+            <div className="hidden md:block absolute top-10 left-1/6 right-1/6 h-2 bg-black" style={{ left: '18%', right: '18%' }} />
 
             {processSteps.map((step, i) => (
               <motion.div
@@ -833,56 +798,22 @@ const Home = () => {
                   viewport={{ once: true }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  <motion.div
-                    initial={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.02)', filter: 'drop-shadow(0 0 0px rgba(255,255,255,0))' }}
-                    whileInView={{
-                      borderColor: '#ffffff',
-                      backgroundColor: 'rgba(255,255,255,0.15)',
-                      filter: 'drop-shadow(0 0 25px rgba(255,255,255,0.4))',
-                      scale: [1, 1.05, 1],
-                    }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    whileHover={{
-                      scale: 1.1,
-                      borderColor: '#ffffff',
-                      backgroundColor: 'rgba(255,255,255,0.25)',
-                      filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.6))',
-                    }}
-                    transition={{
-                      whileInView: { duration: 1.2, delay: i * 0.4 },
-                      whileHover: { duration: 0.2 }
-                    }}
-                    className="w-20 h-20 rounded-full border backdrop-blur-sm flex items-center justify-center group"
+                  <div
+                    className="w-20 h-20 bg-white border-4 border-black flex items-center justify-center group shadow-[4px_4px_0px_#000000]"
                   >
-                    <step.icon className="text-2xl text-white transition-transform duration-500 group-hover:scale-110" />
-                  </motion.div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-black border border-white/20 flex items-center justify-center">
-                    <span className="text-[9px] text-white/50 font-serif">{i + 1}</span>
+                    <step.icon className="text-3xl text-black transition-transform duration-500 group-hover:scale-110" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-blue-400 border-4 border-black flex items-center justify-center">
+                    <span className="text-xs font-black text-black">{i + 1}</span>
                   </div>
                 </motion.div>
 
-                <motion.h3
-                  initial={{ opacity: 0.3, filter: 'brightness(0.4)' }}
-                  whileInView={{
-                    opacity: 1,
-                    filter: 'brightness(1.5)',
-                  }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, delay: i * 0.4 }}
-                  whileHover={{ scale: 1.05, filter: 'brightness(2)', color: '#ffffff', transition: { duration: 0.2 } }}
-                  className="text-xl font-serif text-white mb-3"
-                >
+                <h3 className="text-2xl font-black text-black uppercase mb-3 bg-white px-2 border-2 border-black inline-block shadow-[2px_2px_0px_#000000]">
                   {step.label}
-                </motion.h3>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 1, delay: (i * 0.4) + 0.2 }}
-                  className="text-sm text-white/50 leading-relaxed max-w-xs"
-                >
+                </h3>
+                <p className="text-sm font-bold text-gray-800 leading-relaxed max-w-xs mt-2">
                   {step.desc}
-                </motion.p>
+                </p>
               </motion.div>
             ))}
           </div>
@@ -896,7 +827,7 @@ const Home = () => {
           >
             <Link
               to="/services"
-              className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-white/40 hover:text-white border-b border-white/20 hover:border-white pb-1 transition-all"
+              className="neopop-btn bg-white px-8 py-4 text-black text-sm mt-4 inline-block hover:bg-gray-100"
             >
               Explore Our Services →
             </Link>
@@ -906,7 +837,7 @@ const Home = () => {
         {/* ═══════════════════════════════════════════════════════════
             TESTIMONIALS
         ═══════════════════════════════════════════════════════════ */}
-        <section className="relative z-20 min-h-[100dvh] flex flex-col justify-center py-10 px-6 md:px-16 snap-start snap-always">
+        <section className="relative z-20 min-h-[100dvh] flex flex-col justify-center py-20 px-6 md:px-16 snap-start snap-always bg-pink-400 border-y-4 border-black">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -914,8 +845,8 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-center mb-10 md:mb-12"
           >
-            <p className="text-[10px] tracking-[0.35em] uppercase text-white/30 mb-3">Happy Clients</p>
-            <h2 className="text-3xl md:text-4xl font-serif text-white font-light">What They Say</h2>
+            <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black mb-4">Happy Clients</p>
+            <h2 className="text-4xl md:text-6xl font-black text-black leading-tight uppercase tracking-tighter">What They Say</h2>
           </motion.div>
 
           <div className="max-w-5xl mx-auto min-h-[300px] flex items-center justify-center relative">
@@ -947,59 +878,31 @@ const Home = () => {
             6. FINAL CTA — Pre-footer (3D Living Room Background)
             Animation plays only when user scrolls into this section.
         ═══════════════════════════════════════════════════════════ */}
-        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center overflow-hidden snap-start snap-always">
-
-          {/* Solid black base — no gradient */}
-          <div className="absolute inset-0 bg-black" />
-
-          {/* 3D Living Room — triggered by IntersectionObserver inside component */}
-          <Scene3DBackground />
-
-          {/* Top Edge Gradient Transition — smoothly hides the section line */}
-          <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black to-transparent pointer-events-none" style={{ zIndex: 6 }} />
-
-          {/* Glass Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1.7px] pointer-events-none" style={{ zIndex: 5 }} />
-
-          {/* Very faint ambient glows so they don't fight the 3D scene */}
-          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 2 }}>
-            <div className="absolute top-0 left-1/4 w-[480px] h-[480px] bg-amber-800/8 rounded-full blur-[130px]" />
-            <div className="absolute bottom-0 right-1/4 w-[480px] h-[480px] bg-blue-900/8 rounded-full blur-[130px]" />
-          </div>
-
+        <section className="relative z-10 min-h-[100dvh] flex flex-col justify-center overflow-hidden snap-start snap-always bg-white">
           {/* UI Content — always on top */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9 }}
-            viewport={{ once: true }}
-            className="relative py-20 md:py-32 px-6 text-center max-w-2xl mx-auto"
+          <div
+            className="relative py-20 md:py-32 px-6 text-center max-w-2xl mx-auto flex flex-col items-center justify-center"
             style={{ zIndex: 10 }}
           >
-            <FaCalendarCheck className="text-4xl text-white/15 mx-auto mb-8" />
-            <p className="text-[10px] tracking-[0.4em] uppercase text-white/30 mb-5">Take the First Step</p>
-            <h2 className="text-4xl md:text-6xl font-serif text-white font-light leading-tight mb-6">
+            <div className="bg-yellow-400 p-4 border-4 border-black shadow-[4px_4px_0px_#000000] inline-flex items-center justify-center mb-8">
+              <FaCalendarCheck className="text-4xl text-black" />
+            </div>
+            
+            <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black mb-4">Take the First Step</p>
+            <h2 className="text-5xl md:text-7xl font-black text-black leading-tight uppercase tracking-tighter mb-6">
               Ready to Love<br />Where You Live?
             </h2>
-            <p className="text-base text-white/45 leading-relaxed mb-10">
+            <p className="text-lg font-bold text-gray-800 leading-relaxed mb-10">
               Let's chat about your ideas. One conversation is all it takes to start transforming your space.
             </p>
             <Link
               to="/contact"
-              className="inline-block px-10 py-4 text-xs font-bold tracking-[0.2em] uppercase rounded-full transition-all duration-300 active:translate-y-[2px]"
-              style={{
-                background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                color: '#1f2937',
-                boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.2), 0 6px 8px rgba(0,0,0,0.3)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
+              className="neopop-btn inline-block bg-black text-white px-10 py-5 hover:bg-gray-800 shadow-[4px_4px_0px_#FFCE00] hover:shadow-none"
             >
               Book Your Free Consultation
             </Link>
-            <p className="mt-5 text-[10px] text-white/20 tracking-widest">No commitment. 100% free. 30 minutes.</p>
-          </motion.div>
-
+            <p className="mt-5 text-xs font-black uppercase text-gray-600">No commitment. 100% free. 30 minutes.</p>
+          </div>
         </section>
 
       </div>

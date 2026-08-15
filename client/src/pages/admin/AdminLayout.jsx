@@ -17,24 +17,24 @@ const AdminLayout = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('phantasia_admin_token');
+    const token = localStorage.getItem('intedesign_admin_token');
     if (!token) navigate('/admin/login', { replace: true });
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('phantasia_admin_token');
-    localStorage.removeItem('phantasia_admin_email');
+    localStorage.removeItem('intedesign_admin_token');
+    localStorage.removeItem('intedesign_admin_email');
     navigate('/admin/login');
   };
 
-  const email = localStorage.getItem('phantasia_admin_email') || 'Admin';
+  const email = localStorage.getItem('intedesign_admin_email') || 'Admin';
 
   return (
     <div className="min-h-screen bg-[#080808] text-white flex">
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 bg-white/3 border-r border-white/8 flex flex-col">
         <div className="p-6 border-b border-white/8">
-          <p className="text-lg font-serif tracking-[0.25em] uppercase text-white">Phantasia</p>
+          <p className="text-lg font-serif tracking-[0.25em] uppercase text-white">InteDesign</p>
           <p className="text-[9px] text-white/25 tracking-widest uppercase mt-0.5">Admin Console</p>
         </div>
 

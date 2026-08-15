@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const VisionBoard = require('../models/VisionBoard');
+const userAuth = require('../middleware/userAuth');
 
 // ── POST /api/visionboard/save ─────────────────────────────────────────────
 // Saves a board to DB and returns the generated code
@@ -26,11 +28,48 @@ router.post('/save', async (req, res) => {
       return res.status(400).json({ error: 'No valid image URLs found.' });
     }
 
-    const board = await VisionBoard.create({ images: safe });
+    let userId = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'inteDesignSecretKey2026');
+        if (decoded && decoded.user && decoded.user.id) {
+          userId = decoded.user.id;
+        }
+      } catch (e) {
+        // Token invalid or expired, ignore and save anonymously
+      }
+    }
+
+    const board = await VisionBoard.create({ images: safe, userId });
     return res.json({ code: board.code, count: board.images.length });
   } catch (err) {
     console.error('VisionBoard save error:', err);
     return res.status(500).json({ error: 'Failed to save board.' });
+  }
+});
+
+// ── GET /api/visionboard/history ────────────────────────────────────────────
+// Fetch user's past vision boards
+router.get('/history', userAuth, async (req, res) => {
+  try {
+    const boards = await VisionBoard.find({ userId: req.user.id, isDeleted: false })
+      .sort({ createdAt: -1 })
+      .select('code createdAt images');
+    
+    // Map to simplified structure for the frontend
+    const history = boards.map(b => ({
+      code: b.code,
+      createdAt: b.createdAt,
+      count: b.images.length,
+      images: b.images
+    }));
+
+    return res.json({ history });
+  } catch (err) {
+    console.error('VisionBoard history error:', err);
+    return res.status(500).json({ error: 'Failed to fetch history.' });
   }
 });
 

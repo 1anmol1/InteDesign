@@ -15,7 +15,7 @@ const STATUS_COLORS = {
 const FILTERS = ['all', 'new', 'contacted', 'closed'];
 
 const authHeader = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem('phantasia_admin_token')}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem('intedesign_admin_token')}` },
 });
 
 const LeadManager = () => {

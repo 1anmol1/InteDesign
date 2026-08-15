@@ -34,7 +34,7 @@ const LegalPage = ({ docKey }) => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <p className="text-[10px] tracking-[0.35em] uppercase text-white/30 mb-3">Phantasia Studio</p>
+          <p className="text-[10px] tracking-[0.35em] uppercase text-white/30 mb-3">InteDesign Studio</p>
           {loading ? (
             <div className="h-12 w-64 mx-auto bg-white/5 rounded-xl animate-pulse" />
           ) : (

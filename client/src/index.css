@@ -1,15 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  font-family: 'Inter', sans-serif;
-  background-color: black;
+  font-family: 'Space Grotesk', sans-serif;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 html,
 body,
 #root {
-  background-color: black;
+  background-color: #ffffff;
+  color: #000000;
   margin: 0;
   padding: 0;
   min-height: 100%;
@@ -25,7 +27,20 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* NeoPop utility classes */
+.neopop-btn {
+  @apply border-4 border-black font-black uppercase tracking-widest shadow-[4px_4px_0px_#000000] transition-all duration-200;
+}
+.neopop-btn:hover {
+  @apply translate-x-1 translate-y-1 shadow-none;
+}
+.neopop-card {
+  @apply border-4 border-black bg-white shadow-[8px_8px_0px_#000000];
 }
 
 html.lenis,
@@ -53,30 +68,23 @@ html.lenis body {
 .my-masonry-grid {
   display: flex;
   margin-left: -1rem;
-  /* gutter size offset */
   width: auto;
 }
 
 .my-masonry-grid_column {
   padding-left: 1rem;
-  /* gutter size */
   background-clip: padding-box;
 }
 
-/* Style your items */
 .my-masonry-grid_column>div {
   margin-bottom: 1.5rem;
 }
 
-/* Hide scrollbar but keep scroll functionality */
 .no-scrollbar, .scrollbar-hide {
   scrollbar-width: none;
-  /* Firefox */
   -ms-overflow-style: none;
-  /* IE / Edge */
 }
 
 .no-scrollbar::-webkit-scrollbar, .scrollbar-hide::-webkit-scrollbar {
   display: none;
-  /* Chrome / Safari / Opera */
 }

@@ -30,7 +30,7 @@ const VisionBoardManager = () => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const token = localStorage.getItem('phantasia_admin_token');
+  const token = localStorage.getItem('intedesign_admin_token');
 
   const fetchBoards = useCallback(async (searchCode = '') => {
     const headers = { Authorization: `Bearer ${token}` };

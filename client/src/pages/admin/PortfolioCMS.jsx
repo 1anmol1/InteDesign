@@ -8,7 +8,7 @@ import ConfirmModal from '../../components/admin/ConfirmModal';
 const CATEGORIES = ['Living Room', 'Kitchen', 'Bedroom', 'Bathroom', 'Commercial', 'Other'];
 
 const authHeader = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem('phantasia_admin_token')}` },
+  headers: { Authorization: `Bearer ${localStorage.getItem('intedesign_admin_token')}` },
 });
 
 const emptyForm = { title: '', description: '', category: 'Living Room', location: '', year: '', featured: false };
@@ -50,14 +50,14 @@ const PortfolioCMS = () => {
         const res = await axios.put(
           `${API_BASE_URL}/api/admin/projects/${editing._id}`,
           fd,
-          { headers: { Authorization: `Bearer ${localStorage.getItem('phantasia_admin_token')}`, 'Content-Type': 'multipart/form-data' } }
+          { headers: { Authorization: `Bearer ${localStorage.getItem('intedesign_admin_token')}`, 'Content-Type': 'multipart/form-data' } }
         );
         setProjects((prev) => prev.map((p) => (p._id === editing._id ? res.data : p)));
       } else {
         const res = await axios.post(
           `${API_BASE_URL}/api/admin/projects`,
           fd,
-          { headers: { Authorization: `Bearer ${localStorage.getItem('phantasia_admin_token')}`, 'Content-Type': 'multipart/form-data' } }
+          { headers: { Authorization: `Bearer ${localStorage.getItem('intedesign_admin_token')}`, 'Content-Type': 'multipart/form-data' } }
         );
         setProjects((prev) => [res.data, ...prev]);
       }

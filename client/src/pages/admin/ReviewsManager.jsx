@@ -6,7 +6,7 @@ import { FaPlus, FaTrash, FaEdit, FaEye, FaEyeSlash, FaGripVertical } from 'reac
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
 const BASE = `${API_BASE_URL}/api/admin/reviews`;
-const token = () => localStorage.getItem('phantasia_admin_token');
+const token = () => localStorage.getItem('intedesign_admin_token');
 
 const ReviewsManager = () => {
   const [reviews, setReviews] = useState([]);

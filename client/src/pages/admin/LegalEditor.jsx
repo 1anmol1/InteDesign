@@ -8,7 +8,7 @@ const DOCS = [
 ];
 
 const BASE = `${API_BASE_URL}/api/admin/legal`;
-const token = () => localStorage.getItem('phantasia_admin_token');
+const token = () => localStorage.getItem('intedesign_admin_token');
 
 const DocEditor = ({ docKey, label }) => {
   const [html, setHtml] = useState('');

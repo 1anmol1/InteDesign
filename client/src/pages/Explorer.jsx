@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaSearch, FaHeart, FaRegHeart, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 import Masonry from 'react-masonry-css';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../constants';
+import { AuthContext } from '../components/AuthContext';
+import PageTransition from '../components/PageTransition';
 
 const getProxyUrl = (url) => {
   if (!url || url.startsWith('/images') || url.startsWith('/uploads')) return url;
@@ -29,12 +31,12 @@ const Explorer = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('phantasia_favorites');
+    const saved = localStorage.getItem('intedesign_favorites');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('phantasia_favorites', JSON.stringify(favorites));
+    localStorage.setItem('intedesign_favorites', JSON.stringify(favorites));
   }, [favorites]);
   const [showFavorites, setShowFavorites] = useState(false);
   const [page, setPage] = useState(() => {
@@ -46,6 +48,7 @@ const Explorer = () => {
   const [isGlowing, setIsGlowing] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [randomPhrase, setRandomPhrase] = useState(() => sessionStorage.getItem('explorer_phrase') || '');
+  const { user, loading: authLoading } = useContext(AuthContext);
 
   const inspirationPhrases = [
     "We’ve curated {count} design concepts for your space.",
@@ -194,9 +197,29 @@ const Explorer = () => {
 
   const lightboxImage = lightboxIndex !== null ? lightboxImages[lightboxIndex] : null;
 
+  if (authLoading) {
+    return <div className="min-h-screen pt-24 flex items-center justify-center text-white">Loading...</div>;
+  }
+
+  if (!user) {
+    return (
+      <PageTransition>
+        <div className="min-h-screen pt-24 md:pt-32 pb-20 px-3 md:px-16 flex items-center justify-center relative bg-white">
+          <div className="text-center bg-white border-4 border-black shadow-[8px_8px_0px_#000000] p-12 max-w-lg w-full">
+            <h1 className="text-3xl font-black uppercase mb-4 text-black">Sign in Required</h1>
+            <p className="text-black font-medium mb-8">Please log in to use the AI Style Explorer and get curated inspiration.</p>
+            <Link to="/login" className="bg-yellow-400 text-black border-4 border-black p-4 font-black uppercase tracking-wide inline-block w-full shadow-[4px_4px_0px_#000000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+              Log In Now
+            </Link>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
+
   return (
     <PageTransition>
-      <div className="min-h-screen pt-32 pb-20 px-6 md:px-16 relative" onContextMenu={(e) => e.preventDefault()}>
+      <div className="min-h-screen pt-32 pb-20 px-6 md:px-16 relative bg-white" onContextMenu={(e) => e.preventDefault()}>
 
         {/* Header */}
         <motion.div
@@ -205,11 +228,11 @@ const Explorer = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-14"
         >
-          <p className="text-[10px] tracking-[0.35em] uppercase text-purple-400/70 mb-3">AI-Powered</p>
-          <h1 className="text-5xl md:text-7xl font-serif text-white font-medium mb-5">
+          <p className="text-sm font-black uppercase text-black inline-block border-b-2 border-black mb-4">AI-Powered</p>
+          <h1 className="text-5xl md:text-7xl font-black text-black uppercase tracking-tighter mb-5">
             Style Explorer
           </h1>
-          <p className="text-sm text-white/40 max-w-md mx-auto leading-relaxed">
+          <p className="text-sm font-bold text-gray-700 max-w-md mx-auto leading-relaxed">
             Describe your dream space in plain language. Our AI extracts the essence and curates real interior design inspiration for you.
           </p>
         </motion.div>
@@ -226,48 +249,26 @@ const Explorer = () => {
           <motion.div
             animate={isShaking ? { x: [-3, 3, -3, 3, 0] } : {}}
             transition={{ duration: 0.4 }}
-            className="hidden sm:flex relative items-center p-[1px] rounded-full overflow-hidden group"
+            className="hidden sm:flex relative items-center bg-white border-4 border-black p-2 shadow-[8px_8px_0px_#000000]"
           >
-            {/* Bright Silver Edge Glow */}
-            <motion.div
-              animate={{
-                opacity: (isGlowing || isFocused || loading) ? 1 : 0.7,
-                scale: (isGlowing || isFocused || loading) ? 1.02 : 1
-              }}
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(200,200,220,0.3) 50%, rgba(255,255,255,0.5) 100%)',
-                boxShadow: (isGlowing || isFocused || loading)
-                  ? '0 0 28px rgba(255,255,255,0.55), 0 0 60px rgba(200,200,255,0.25), inset 0 0 10px rgba(255,255,255,0.1)'
-                  : '0 0 10px rgba(255,255,255,0.2), inset 0 0 4px rgba(255,255,255,0.05)'
-              }}
-            />
-
             <div
-              className="relative w-full flex items-center bg-[#000000] rounded-full z-10 p-1"
+              className="relative w-full flex items-center bg-white z-10"
               onMouseEnter={() => setIsGlowing(true)}
               onMouseLeave={() => setIsGlowing(false)}
             >
-              <FaSearch className="absolute left-6 text-white/30 text-sm z-20" />
+              <FaSearch className="absolute left-4 text-black text-sm z-20" />
               <input
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onFocus={triggerGlow}
                 placeholder="Describe your vision here... (Type your design ideas)"
-                className="w-full bg-transparent pl-12 pr-36 py-3 text-sm text-white placeholder-white/25 focus:outline-none transition-all"
+                className="w-full bg-transparent pl-12 pr-36 py-3 text-sm font-bold text-black placeholder-gray-400 focus:outline-none transition-all"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="absolute right-2 px-6 py-2.5 rounded-full text-[11px] tracking-[0.2em] font-bold uppercase disabled:opacity-50 transition-all duration-300 active:translate-y-[2px] active:shadow-inner"
-                style={{
-                  background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                  color: '#1f2937',
-                  boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
+                className="absolute right-2 px-6 py-2.5 bg-yellow-400 text-black border-2 border-black text-[11px] tracking-widest font-black uppercase disabled:opacity-50 transition-all duration-300 shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-[2px] hover:translate-x-[2px]"
               >
                 {loading ? 'Searching…' : 'Inspire Me'}
               </button>
@@ -275,11 +276,11 @@ const Explorer = () => {
           </motion.div>
 
           {/* Mobile: input full-width, button below */}
-          <div className="flex sm:hidden flex-col gap-3">
+          <div className="flex sm:hidden flex-col gap-4">
             <motion.div
               animate={isShaking ? { x: [-3, 3, -3, 3, 0] } : {}}
               transition={{ duration: 0.4 }}
-              className="relative flex items-center p-[1px] rounded-2xl overflow-hidden group"
+              className="relative flex items-center bg-white border-4 border-black p-2 shadow-[4px_4px_0px_#000000]"
             >
               {/* Bright Silver Edge Glow (Mobile) */}
               <motion.div
@@ -297,17 +298,17 @@ const Explorer = () => {
               />
 
               <div
-                className="relative w-full flex items-center bg-[#000000] rounded-2xl z-10 p-[1px]"
+                className="relative w-full flex items-center bg-white z-10"
                 onMouseEnter={() => setIsGlowing(true)}
                 onMouseLeave={() => setIsGlowing(false)}
               >
-                <FaSearch className="absolute left-5 text-white/30 text-sm z-20" />
+                <FaSearch className="absolute left-4 text-black text-sm z-20" />
                 <input
                   type="text"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Describe your vision here... (Type your ideas)"
-                  className="w-full bg-transparent pl-12 pr-12 py-3.5 text-sm text-white placeholder-white/25 focus:outline-none transition-all"
+                  className="w-full bg-transparent pl-12 pr-12 py-3.5 text-sm font-bold text-black placeholder-gray-400 focus:outline-none transition-all"
                   onFocus={() => { setIsFocused(true); triggerGlow(); }}
                   onBlur={() => setIsFocused(false)}
                 />
@@ -315,7 +316,7 @@ const Explorer = () => {
                   <button
                     type="button"
                     onClick={() => setPrompt('')}
-                    className="absolute right-4 text-white/30 hover:text-white/60 p-1 z-20"
+                    className="absolute right-4 text-black hover:text-gray-500 p-1 z-20"
                   >
                     <FaTimes />
                   </button>
@@ -325,14 +326,7 @@ const Explorer = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-2xl text-sm font-bold tracking-[0.2em] uppercase disabled:opacity-50 transition-all duration-300 active:translate-y-[2px] active:shadow-inner"
-              style={{
-                background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                color: '#1f2937',
-                boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.2), 0 6px 8px rgba(0,0,0,0.3)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
+              className="w-full py-4 bg-yellow-400 text-black border-4 border-black text-sm font-black tracking-widest uppercase disabled:opacity-50 transition-all duration-300 shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-[2px] hover:translate-x-[2px]"
             >
               {loading ? 'Searching…' : 'Inspire Me'}
             </button>
@@ -353,7 +347,7 @@ const Explorer = () => {
                 <button
                   key={s}
                   onClick={() => setPrompt(s)}
-                  className="flex-shrink-0 snap-start text-[10px] tracking-wide text-white/40 border border-white/10 px-4 py-1.5 rounded-full hover:text-white/70 hover:border-white/30 transition-all whitespace-nowrap"
+                  className="flex-shrink-0 snap-start text-xs font-bold text-black border-2 border-black bg-white px-4 py-1.5 shadow-[2px_2px_0px_#000000] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-none transition-all whitespace-nowrap"
                 >
                   {s}
                 </button>
@@ -365,7 +359,7 @@ const Explorer = () => {
                 <button
                   key={s}
                   onClick={() => setPrompt(s)}
-                  className="text-[10px] tracking-wide text-white/40 border border-white/10 px-4 py-1.5 rounded-full hover:text-white/70 hover:border-white/30 transition-all"
+                  className="text-xs font-bold text-black border-2 border-black bg-white px-4 py-1.5 shadow-[2px_2px_0px_#000000] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-none transition-all"
                 >
                   {s}
                 </button>
@@ -410,18 +404,18 @@ const Explorer = () => {
         {images.length > 0 && (
           <>
             <div className="flex justify-between items-end max-w-7xl mx-auto mb-8 px-1">
-              <p className="text-[11px] text-white/30 tracking-[0.1em] uppercase font-medium">
+              <p className="text-sm font-black text-black uppercase">
                 {randomPhrase ? randomPhrase.replace('{count}', images.length) : `${images.length} inspiration images found`}
               </p>
-              {favorites.length > 0 && (
+              {favorites.filter(f => f.source === 'explorer').length > 0 && (
                 <Link
                   to="/my-board"
-                  className="group flex items-center gap-3 text-white/40 hover:text-pink-400 transition-all duration-300 uppercase tracking-[0.2em] font-bold"
+                  className="group flex items-center gap-3 text-black hover:text-pink-500 transition-all duration-300 uppercase font-black tracking-widest bg-white border-2 border-black px-4 py-2 shadow-[2px_2px_0px_#000000]"
                 >
-                  <FaHeart className="text-[12px] text-pink-500/60 group-hover:text-pink-500 transition-colors" />
+                  <FaHeart className="text-sm text-pink-500 group-hover:text-pink-600 transition-colors" />
                   <div className="flex flex-col leading-tight whitespace-nowrap">
-                    <span className="text-[9px]">{favorites.length} Saved</span>
-                    <span className="text-[8px] opacity-60">View Full Canvas</span>
+                    <span className="text-[10px]">{favorites.filter(f => f.source === 'explorer').length} Saved</span>
+                    <span className="text-[9px] opacity-80">View Full Canvas</span>
                   </div>
                 </Link>
               )}
@@ -458,7 +452,7 @@ const Explorer = () => {
               <button
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="px-8 py-3 bg-white/5 border border-white/10 text-white text-xs tracking-[0.2em] font-medium uppercase rounded-full hover:bg-white/10 transition-colors disabled:opacity-50"
+                className="neopop-btn px-8 py-4 bg-pink-400 border-4 border-black text-black text-xs font-black uppercase shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 transition-all disabled:opacity-50"
               >
                 {loadingMore ? 'Loading...' : 'Load More Options'}
               </button>
@@ -471,7 +465,7 @@ const Explorer = () => {
                     if (input) input.focus();
                   }, 800);
                 }}
-                className="px-8 py-3 bg-white/5 border border-white/10 text-white/40 text-xs tracking-[0.2em] font-medium uppercase rounded-full hover:text-white hover:border-white/30 transition-all"
+                className="neopop-btn px-8 py-4 bg-white border-4 border-black text-black text-xs font-black uppercase shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 hover:bg-gray-100 transition-all"
               >
                 Refine Prompt
               </button>
@@ -487,32 +481,32 @@ const Explorer = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '100%' }}
               transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-              className="fixed top-20 right-0 h-[calc(100vh-80px)] w-full sm:w-80 bg-black/80 backdrop-blur-xl border-l border-white/10 z-[100] flex flex-col"
+              className="fixed top-20 right-0 h-[calc(100vh-80px)] w-full sm:w-80 bg-white border-l-4 border-black z-[100] flex flex-col shadow-[-8px_0px_0px_#000000]"
             >
-              <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <div className="flex items-center justify-between p-5 border-b-4 border-black bg-yellow-400">
                 <div>
-                  <h3 className="text-sm font-serif text-white">Saved Board</h3>
-                  <p className="text-[10px] text-white/30">{favorites.length} images</p>
+                  <h3 className="text-xl font-black text-black uppercase">Saved Board</h3>
+                  <p className="text-xs font-bold text-black">{favorites.filter(f => f.source === 'explorer').length} images</p>
                 </div>
-                <button onClick={() => setShowFavorites(false)} className="text-white/40 hover:text-white transition-colors">
-                  <FaTimes />
+                <button onClick={() => setShowFavorites(false)} className="text-black hover:text-gray-700 transition-colors">
+                  <FaTimes fontSize={20} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-3 content-start">
-                {favorites.map((img) => (
-                  <div key={img.id} className="relative rounded-lg overflow-hidden aspect-square group">
-                    <img src={img.thumb} alt={img.description} className="w-full h-full object-cover" />
+              <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-4 content-start">
+                {favorites.filter(f => f.source === 'explorer').map((img) => (
+                  <div key={img.id} className="relative bg-white border-2 border-black p-1 shadow-[2px_2px_0px_#000000] group">
+                    <img src={img.thumb} alt={img.description} className="w-full aspect-square object-cover border-2 border-black" />
                     <button
                       onClick={() => toggleFavorite(img)}
-                      className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      className="absolute inset-1 bg-white/90 border-2 border-black opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center m-1 shadow-[2px_2px_0px_#000000]"
                     >
-                      <FaTimes className="text-white text-sm" />
+                      <FaTimes className="text-black text-xl" />
                     </button>
                   </div>
                 ))}
               </div>
-              <div className="p-4 border-t border-white/10">
-                <p className="text-[9px] text-white/20 text-center">Attach this board to your consultation request</p>
+              <div className="p-4 border-t-4 border-black bg-white">
+                <p className="text-xs font-bold text-black text-center uppercase tracking-widest">Attach this board to your consultation request</p>
               </div>
             </motion.div>
           )}
@@ -521,26 +515,26 @@ const Explorer = () => {
         {/* Lightbox for Explorer images */}
         <AnimatePresence>
           {lightboxImage && (
-            <motion.div
+              <motion.div
               key="explorer-lightbox-bg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[5000] bg-black/75 backdrop-blur-[100px] flex items-center justify-center p-6 md:p-12"
+              className="fixed inset-0 z-[5000] bg-white/90 backdrop-blur-md flex items-center justify-center p-6 md:p-12"
               onClick={closeLightbox}
             >
               {/* Top-right controls (Close) */}
               <div className="absolute top-12 right-12 z-[1010] flex items-center gap-4">
                 <button
-                  className="p-4 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all backdrop-blur-md"
+                  className="p-4 bg-white border-2 border-black text-black hover:bg-pink-400 hover:text-white transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(lightboxImage); }}
                 >
                   {isFavorited(lightboxImage.id)
-                    ? <FaHeart className="text-xl text-pink-400" />
+                    ? <FaHeart className="text-xl text-pink-500" />
                     : <FaRegHeart className="text-xl" />}
                 </button>
                 <button
-                  className="p-4 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-white transition-all backdrop-blur-md"
+                  className="p-4 bg-white border-2 border-black text-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                   onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
                 >
                   <FaTimes className="text-xl" />
@@ -552,13 +546,13 @@ const Explorer = () => {
                 <div className="contents hidden md:block">
                   <button
                     onClick={(e) => { e.stopPropagation(); goPrev(); }}
-                    className="absolute left-10 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/10 transition-all z-[1010] backdrop-blur-md"
+                    className="absolute left-10 top-1/2 -translate-y-1/2 w-16 h-16 bg-yellow-400 border-2 border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-all z-[1010] shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                   >
                     <FaChevronLeft className="text-2xl" />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); goNext(); }}
-                    className="absolute right-10 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/10 transition-all z-[1010] backdrop-blur-md"
+                    className="absolute right-10 top-1/2 -translate-y-1/2 w-16 h-16 bg-yellow-400 border-2 border-black flex items-center justify-center text-black hover:bg-black hover:text-white transition-all z-[1010] shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                   >
                     <FaChevronRight className="text-2xl" />
                   </button>
@@ -585,7 +579,7 @@ const Explorer = () => {
                         else goNext();
                       }
                     }}
-                    className="w-full bg-[#000000] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
+                    className="w-full bg-white border-4 border-black p-2 shadow-[16px_16px_0px_#000000]"
                   >
                     <ExplorerLightboxImage src={lightboxImage.url || lightboxImage.thumb} alt={lightboxImage.description} />
                   </motion.div>
@@ -593,7 +587,7 @@ const Explorer = () => {
 
                 {/* Bottom actions row — Fixed outside AnimatePresence */}
                 <div className="w-full px-5 md:px-8 py-4 md:py-6 flex items-center justify-between">
-                  <span className="text-white/20 text-[10px] tracking-[0.3em] uppercase font-bold">{lightboxIndex + 1} / {lightboxImages.length}</span>
+                  <span className="text-black text-[10px] tracking-[0.3em] uppercase font-black">{lightboxIndex + 1} / {lightboxImages.length}</span>
                 </div>
               </div>
 
@@ -602,13 +596,13 @@ const Explorer = () => {
                 <div className="absolute bottom-12 left-6 flex items-center gap-4 md:hidden z-[1010]">
                   <button
                     onClick={(e) => { e.stopPropagation(); goPrev(); }}
-                    className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white backdrop-blur-md active:scale-95"
+                    className="w-12 h-12 bg-yellow-400 border-2 border-black flex items-center justify-center text-black active:translate-y-1 shadow-[4px_4px_0px_#000000] active:shadow-none"
                   >
                     <FaChevronLeft fontSize={14} />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); goNext(); }}
-                    className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white backdrop-blur-md active:scale-95"
+                    className="w-12 h-12 bg-yellow-400 border-2 border-black flex items-center justify-center text-black active:translate-y-1 shadow-[4px_4px_0px_#000000] active:shadow-none"
                   >
                     <FaChevronRight fontSize={14} />
                   </button>
@@ -619,15 +613,7 @@ const Explorer = () => {
               <div className="fixed bottom-12 right-6 md:right-12 z-[5010] pointer-events-auto">
                 <button
                   onClick={(e) => { e.stopPropagation(); window.location.href = '/contact'; }}
-                  className="px-8 md:px-10 py-3 md:py-4 rounded-full transition-all duration-300 active:translate-y-[1px] text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase shadow-2xl backdrop-blur-md"
-                  style={{
-                    background: 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)',
-                    color: '#1f2937',
-                    boxShadow: 'inset 0 1px 3px rgba(255,255,255,1), inset 0 -2px 4px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3)',
-                    willChange: 'backdrop-filter, transform'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #6b7280 100%)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #d1d5db 50%, #9ca3af 100%)'}
+                  className="px-8 md:px-10 py-3 md:py-4 transition-all duration-300 text-[10px] md:text-[11px] font-black tracking-widest uppercase neopop-btn bg-pink-400 text-black border-2 border-black shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                 >
                   Enquire Now
                 </button>
@@ -640,15 +626,14 @@ const Explorer = () => {
   );
 };
 
-/* Sub-component: image with skeleton loader */
 const ExplorerLightboxImage = ({ src, alt }) => {
   const [loaded, setLoaded] = useState(false);
   return (
-    <div className="relative overflow-hidden bg-black/40 min-h-[400px] flex items-center justify-center">
-      {/* Blurred background image for premium feel */}
+    <div className="relative overflow-hidden bg-white min-h-[400px] flex items-center justify-center">
+      {/* Background overlay */}
       {src && (
         <div
-          className="absolute inset-0 z-0 opacity-40 blur-3xl scale-110"
+          className="absolute inset-0 z-0 opacity-20 blur-md scale-110"
           style={{
             backgroundImage: `url(${getProxyUrl(src)})`,
             backgroundSize: 'cover',
@@ -658,7 +643,7 @@ const ExplorerLightboxImage = ({ src, alt }) => {
       )}
 
       {!loaded && (
-        <div className="absolute inset-0 z-10 bg-white/5 animate-pulse" />
+        <div className="absolute inset-0 z-10 bg-gray-200 animate-pulse" />
       )}
 
       <img
@@ -667,12 +652,9 @@ const ExplorerLightboxImage = ({ src, alt }) => {
         onLoad={() => setLoaded(true)}
         draggable="false"
         onContextMenu={(e) => e.preventDefault()}
-        className={`relative z-10 w-full max-h-[50vh] object-contain transition-all duration-500 ease-out ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        className={`relative z-10 w-full max-h-[50vh] object-contain border-2 border-black bg-white p-2 transition-all duration-500 ease-out ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           }`}
       />
-
-      {/* Reduced gradient overlay */}
-      <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
     </div>
   );
 };
@@ -690,7 +672,7 @@ const LoadedImage = ({ img, isFavorited, toggleFavorite, onImageClick }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative mb-4 group cursor-pointer overflow-hidden rounded-xl bg-white/5"
+      className="relative mb-4 group cursor-pointer neopop-card bg-white border-4 border-black p-1 transition-all duration-300 shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
       onClick={() => onImageClick(img)}
     >
       <img
@@ -699,12 +681,12 @@ const LoadedImage = ({ img, isFavorited, toggleFavorite, onImageClick }) => {
         onLoad={() => setLoaded(true)}
         draggable="false"
         onContextMenu={(e) => e.preventDefault()}
-        className={`w-full h-auto transition-all duration-700 ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+        className={`w-full h-auto border-2 border-black transition-all duration-700 ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
           }`}
       />
 
-      {/* Silver white border on hover — no black overlay */}
-      <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-white/80 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all duration-300 pointer-events-none" />
+      {/* Hover border glow — no overlay */}
+      <div className="absolute inset-0 border-2 border-transparent group-hover:border-black/10 transition-all duration-300 pointer-events-none" />
 
       {/* Heart button — bottom-right, fades in on hover */}
       <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -713,12 +695,12 @@ const LoadedImage = ({ img, isFavorited, toggleFavorite, onImageClick }) => {
             e.stopPropagation();
             toggleFavorite(img);
           }}
-          className={`p-2.5 rounded-full border backdrop-blur-md transition-all duration-200 ${isFavorited(img.id)
-            ? 'bg-pink-500/30 border-pink-500 text-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.4)]'
-            : 'bg-black/30 border-white/20 text-white/60 hover:text-pink-400 hover:border-pink-500/40'
+          className={`p-3 border-2 border-black transition-all duration-200 shadow-[2px_2px_0px_#000000] hover:shadow-none hover:translate-y-[2px] hover:translate-x-[2px] ${isFavorited(img.id)
+            ? 'bg-pink-400 text-black'
+            : 'bg-white text-black hover:bg-gray-100'
             }`}
         >
-          {isFavorited(img.id) ? <FaHeart fontSize={13} /> : <FaRegHeart fontSize={13} />}
+          {isFavorited(img.id) ? <FaHeart fontSize={14} /> : <FaRegHeart fontSize={14} />}
         </button>
       </div>
     </motion.div>
