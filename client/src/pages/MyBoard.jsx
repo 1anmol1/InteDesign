@@ -42,8 +42,10 @@ const MyBoard = () => {
   const [historyBoards, setHistoryBoards] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [renameData, setRenameData] = useState({ code: null, name: '' });
-  const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
+const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
   const [historyBoardToDelete, setHistoryBoardToDelete] = useState(null);
+  const [selectedHistoryCodes, setSelectedHistoryCodes] = useState([]);
+  const [showHistorySelectionDeleteModal, setShowHistorySelectionDeleteModal] = useState(false);
   
   // Board Save State
   const [isUnsaved, setIsUnsaved] = useState(favorites.length > 0);
@@ -83,7 +85,7 @@ const MyBoard = () => {
 
   // Prevent body scrolling when any modal or lightbox is open
   useEffect(() => {
-    if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || showHistoryDeleteModal || lightboxIndex !== null) {
+    if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || showHistoryDeleteModal || showHistorySelectionDeleteModal || lightboxIndex !== null) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
     } else {
@@ -94,7 +96,7 @@ const MyBoard = () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, showHistoryDeleteModal, lightboxIndex]);
+  }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, showHistoryDeleteModal, showHistorySelectionDeleteModal, lightboxIndex]);
 
   // ── Lightbox (uses tabFavorites for navigation) ────────────────
   const lightboxImage = lightboxIndex !== null ? tabFavorites[lightboxIndex] : null;
@@ -252,6 +254,40 @@ const MyBoard = () => {
       setRenameData({ code: null, name: '' });
     } catch (err) {
       console.error('Failed to rename board:', err);
+    }
+  };
+
+
+  const toggleHistorySelect = (code) => {
+    setSelectedHistoryCodes(prev =>
+      prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]
+    );
+  };
+
+  const toggleHistorySelectAll = () => {
+    if (selectedHistoryCodes.length === historyBoards.length) {
+      setSelectedHistoryCodes([]);
+    } else {
+      setSelectedHistoryCodes(historyBoards.map(b => b.code));
+    }
+  };
+
+  const clearHistorySelection = () => setSelectedHistoryCodes([]);
+
+  const confirmDeleteSelectedHistory = async () => {
+    try {
+      await Promise.all(selectedHistoryCodes.map(code => 
+        axios.delete(`${API_BASE_URL}/api/visionboard/${code}`)
+      ));
+      setHistoryBoards(prev => prev.filter(b => !selectedHistoryCodes.includes(b.code)));
+      if (selectedHistoryCodes.includes(currentBoardCode)) {
+        setCurrentBoardCode(null);
+        setCurrentBoardName('');
+      }
+      setSelectedHistoryCodes([]);
+      setShowHistorySelectionDeleteModal(false);
+    } catch (err) {
+      console.error('Failed to delete selected boards:', err);
     }
   };
 
@@ -1031,7 +1067,7 @@ const MyBoard = () => {
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-[calc(100%-12px)] max-w-6xl bg-white border-4 border-black p-4 sm:p-10 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] max-h-[90vh] flex flex-col"
+              className="relative w-[calc(100%-12px)] max-w-6xl bg-white border-4 border-black p-4 sm:p-10 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] max-h-[90vh] flex flex-col overflow-hidden"
             >
               <div className="flex justify-between items-center mb-6 sm:mb-8 pb-4 border-b-4 border-black flex-shrink-0">
                 <h3 className="text-2xl sm:text-4xl font-black text-black uppercase tracking-tighter">Canvas History</h3>
@@ -1043,7 +1079,7 @@ const MyBoard = () => {
                 </button>
               </div>
 
-              <div className="overflow-y-auto flex-1 overscroll-contain pr-2 -mr-2 min-h-0">
+              <div className="overflow-y-auto flex-1 pr-2 -mr-2 min-h-0">
 
               {isLoadingHistory ? (
                 <div className="text-center py-20">
@@ -1056,9 +1092,26 @@ const MyBoard = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pr-2">
                   {historyBoards.map(board => (
-                    <div key={board.code} className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_#000000] hover:shadow-[2px_2px_0px_#000000] hover:translate-y-1 hover:translate-x-1 transition-all flex flex-col justify-between">
+                    <div key={board.code} className="relative bg-white border-4 border-black p-6 shadow-[6px_6px_0px_#000000] hover:shadow-[2px_2px_0px_#000000] hover:translate-y-1 hover:translate-x-1 transition-all flex flex-col justify-between"
+                      onClick={() => {
+                        if (selectedHistoryCodes.length > 0) toggleHistorySelect(board.code);
+                      }}
+>
                       <div>
-                        <div className="flex justify-between items-start mb-4">
+                        
+                        <div className="absolute top-2 right-2 z-10">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleHistorySelect(board.code);
+                            }}
+                            className={`w-6 h-6 border-2 border-black flex items-center justify-center transition-colors shadow-[2px_2px_0px_#000000] active:shadow-none active:translate-y-[2px] active:translate-x-[2px] ${selectedHistoryCodes.includes(board.code) ? 'bg-pink-400 text-black' : 'bg-white text-black'}`}
+                          >
+                            {selectedHistoryCodes.includes(board.code) && <FaCheck className="text-[10px]" />}
+                          </button>
+                        </div>
+
+                          <div className="flex justify-between items-start mb-4 pr-8">
                           <span className="bg-yellow-400 text-black px-3 py-1 font-black uppercase tracking-widest text-xs border-2 border-black">
                             {board.code}
                           </span>
@@ -1152,6 +1205,54 @@ const MyBoard = () => {
                 </div>
               )}
               </div>
+
+              {selectedHistoryCodes.length > 0 && (
+                <motion.div
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 50, opacity: 0 }}
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[200] max-w-[95vw] overflow-hidden bg-white shadow-[8px_8px_0px_#000000] no-scrollbar border-4 border-black pointer-events-auto"
+                >
+                  <div className="flex items-center px-4 md:px-8 py-3 md:py-4 gap-4 md:gap-8">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="bg-yellow-400 text-black w-7 h-7 md:w-9 md:h-9 flex items-center justify-center text-[10px] md:text-xs font-black uppercase border-2 border-black shadow-[2px_2px_0px_#000000]">
+                        {selectedHistoryCodes.length}
+                      </div>
+                      <span className="text-xs font-black tracking-widest text-black uppercase ml-1 md:ml-2 hidden sm:inline">Selected</span>
+                    </div>
+                    <div className="w-1 h-8 bg-black" />
+                    <div className="flex items-center gap-4 md:gap-8">
+                      <button
+                        onClick={toggleHistorySelectAll}
+                        className="flex items-center gap-2 md:gap-2.5 text-black hover:text-gray-700 font-black text-[10px] md:text-xs tracking-widest uppercase transition-colors active:translate-y-[1px]"
+                      >
+                        <div className={`w-4 h-4 md:w-5 md:h-5 border-2 border-black flex items-center justify-center transition-colors ${selectedHistoryCodes.length === historyBoards.length ? 'bg-black text-white' : 'bg-white'}`}>
+                          {selectedHistoryCodes.length === historyBoards.length && <FaCheck className="text-[8px] md:text-[10px]" />}
+                        </div>
+                        <span className="whitespace-nowrap">{selectedHistoryCodes.length === historyBoards.length ? 'Deselect' : 'Select All'}</span>
+                      </button>
+                      <div className="w-1 h-8 bg-black" />
+                      <button
+                        onClick={() => setShowHistorySelectionDeleteModal(true)}
+                        className="flex items-center gap-2 md:gap-2.5 text-red-500 hover:text-red-700 font-black text-[10px] md:text-xs tracking-widest uppercase transition-colors active:translate-y-[1px]"
+                      >
+                        <FaTrash className="text-[12px] md:text-[14px]" /> 
+                        <span className="whitespace-nowrap hidden sm:inline">Delete Selected</span>
+                        <span className="whitespace-nowrap sm:hidden">Delete</span>
+                      </button>
+                      <div className="w-1 h-8 bg-black" />
+                      <button
+                        onClick={clearHistorySelection}
+                        className="flex items-center gap-2 md:gap-2.5 text-black hover:text-gray-700 font-black text-[10px] md:text-xs tracking-widest uppercase transition-colors active:translate-y-[1px]"
+                      >
+                        <FaTimes className="text-[12px] md:text-[14px]" /> 
+                        <span className="whitespace-nowrap hidden sm:inline">Clear</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
             </motion.div>
           </div>
         )}
@@ -1245,6 +1346,48 @@ const MyBoard = () => {
                     setShowHistoryDeleteModal(false);
                     setHistoryBoardToDelete(null);
                   }}
+                  className="w-full py-4 bg-white text-black border-2 border-black text-[11px] font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+
+      {/* History Selection Delete Modal */}
+      <AnimatePresence>
+        {showHistorySelectionDeleteModal && (
+          <div className="fixed inset-0 z-[7000] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowHistorySelectionDeleteModal(false)}
+              className="absolute inset-0 bg-white/60 backdrop-blur-sm touch-none"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-[calc(100%-8px)] sm:w-full max-w-sm bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_#000000] sm:shadow-[12px_12px_0px_#000000] text-center"
+            >
+              <div className="w-16 h-16 bg-red-400 border-2 border-black shadow-[4px_4px_0px_#000000] flex items-center justify-center mx-auto mb-6">
+                <FaTrash className="text-black text-xl" />
+              </div>
+              <h3 className="text-2xl font-black text-black uppercase tracking-tighter mb-3">Delete Selected?</h3>
+              <p className="text-sm font-bold text-gray-700 mb-8 leading-relaxed">
+                You are about to permanently delete {selectedHistoryCodes.length} canvases from your history. This action cannot be undone.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={confirmDeleteSelectedHistory}
+                  className="w-full py-4 bg-red-500 text-black border-2 border-black text-[11px] font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
+                >
+                  Yes, Delete Selected
+                </button>
+                <button
+                  onClick={() => setShowHistorySelectionDeleteModal(false)}
                   className="w-full py-4 bg-white text-black border-2 border-black text-[11px] font-black tracking-widest uppercase transition-all shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1"
                 >
                   Cancel
