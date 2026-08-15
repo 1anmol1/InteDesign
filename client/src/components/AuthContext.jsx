@@ -32,12 +32,19 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, loginType = 'user') => {
     try {
       const res = await axios.post(loginType === 'admin' ? `${API_BASE_URL}/api/admin/login` : `${API_BASE_URL}/api/auth/login`, { email, password });
-      localStorage.setItem('token', res.data.token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-      setUser(res.data.user);
-      return { success: true, role: res.data.user.role };
+      
+      if (loginType === 'admin') {
+        localStorage.setItem('intedesign_admin_token', res.data.token);
+        localStorage.setItem('intedesign_admin_email', res.data.email);
+        return { success: true, role: 'admin' };
+      } else {
+        localStorage.setItem('token', res.data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+        setUser(res.data.user);
+        return { success: true, role: res.data.user.role };
+      }
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || 'Login failed' };
+      return { success: false, message: err.response?.data?.message || err.response?.data?.error || 'Login failed' };
     }
   };
 
