@@ -1,13 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const sharp = require('sharp');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 const auth = require('../../middleware/auth');
 const Project = require('../../models/Project');
 
-// Multer: buffer storage (we process with sharp before saving)
+// Cloudinary config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Multer: buffer storage
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
@@ -19,17 +25,19 @@ const upload = multer({
     },
 });
 
-const UPLOADS_DIR = path.join(__dirname, '../../uploads');
-
-// Helper: save image as WebP via sharp
-async function saveAsWebP(buffer, filename) {
-    const outPath = path.join(UPLOADS_DIR, filename);
-    await sharp(buffer)
-        .resize(1400, 1000, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 82 })
-        .toFile(outPath);
-    return `/uploads/${filename}`;
-}
+// Helper: upload buffer to Cloudinary
+const uploadToCloudinary = (buffer, folder = "intedesign") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: folder },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+};
 
 // GET /api/admin/projects — all projects sorted by order
 router.get('/', auth, async (req, res) => {
@@ -49,8 +57,7 @@ router.post('/', auth, upload.array('images', 10), async (req, res) => {
 
         const imagePaths = [];
         for (const file of req.files || []) {
-            const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-            const url = await saveAsWebP(file.buffer, filename);
+            const url = await uploadToCloudinary(file.buffer, 'intedesign/projects');
             imagePaths.push(url);
         }
 
@@ -88,17 +95,14 @@ router.put('/:id', auth, upload.array('images', 10), async (req, res) => {
         // Remove specific images
         if (removeImages) {
             const toRemove = JSON.parse(removeImages);
-            toRemove.forEach((imgPath) => {
-                const fullPath = path.join(__dirname, '../../', imgPath);
-                if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-            });
+            // In a production app you'd also delete them from Cloudinary:
+            // e.g. cloudinary.uploader.destroy(public_id)
             project.images = project.images.filter((img) => !toRemove.includes(img));
         }
 
         // Add new images
         for (const file of req.files || []) {
-            const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-            const url = await saveAsWebP(file.buffer, filename);
+            const url = await uploadToCloudinary(file.buffer, 'intedesign/projects');
             project.images.push(url);
         }
 
