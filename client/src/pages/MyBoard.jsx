@@ -1152,24 +1152,27 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
                         </div>
 
                         {renameData.code === board.code ? (
-                          <div className="mb-4">
+                          <div className="mb-4 flex items-center gap-2">
                             <input
                               type="text"
                               value={renameData.name}
                               onChange={(e) => setRenameData({ ...renameData, name: e.target.value })}
                               placeholder="Canvas Name..."
-                              className="w-full font-black text-lg uppercase truncate bg-transparent border-b-2 border-black focus:outline-none focus:border-pink-400 transition-colors py-1"
+                              className="flex-1 font-black text-lg uppercase truncate bg-transparent border-b-2 border-black focus:outline-none focus:border-pink-400 transition-colors py-1"
                               autoFocus
                               onFocus={(e) => e.target.select()}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleRename(board.code, renameData.name);
                                 if (e.key === 'Escape') setRenameData({ code: null, name: '' });
                               }}
-                              onBlur={() => {
-                                if (renameData.name.trim()) handleRename(board.code, renameData.name);
-                                else setRenameData({ code: null, name: '' });
-                              }}
                             />
+                            <button
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => handleRename(board.code, renameData.name)}
+                              className="px-3 py-1.5 bg-black text-white text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_#000000] hover:shadow-none hover:translate-y-[2px] hover:translate-x-[2px] transition-all flex-shrink-0"
+                            >
+                              Save
+                            </button>
                           </div>
                         ) : (
                           <div className="mb-4">
@@ -1211,34 +1214,12 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
                         >
                           Load Canvas ({board.count} items)
                         </button>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleHistoryDownload(board)}
-                            className="flex-1 py-3 bg-pink-400 text-black font-black uppercase tracking-widest text-xs hover:bg-pink-300 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black flex items-center justify-center gap-2"
-                          >
-                            <FiDownload /> PDF
-                          </button>
-                          <button
-                            onClick={async () => {
-                              try {
-                                await axios.post(`${API_BASE_URL}/api/visionboard/save`, {
-                                  images: board.images,
-                                  code: board.code,
-                                  isDownloaded: false,
-                                  name: board.name,
-                                });
-                                setHistoryBoards(prev => prev.map(b =>
-                                  b.code === board.code ? { ...b } : b
-                                ));
-                              } catch (err) {
-                                console.error('Failed to save board:', err);
-                              }
-                            }}
-                            className="flex-1 py-3 bg-yellow-400 text-black font-black uppercase tracking-widest text-xs hover:bg-yellow-300 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black flex items-center justify-center gap-2"
-                          >
-                            <FaHeart /> Save
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleHistoryDownload(board)}
+                          className="w-full py-3 bg-pink-400 text-black font-black uppercase tracking-widest text-xs hover:bg-pink-300 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black flex items-center justify-center gap-2"
+                        >
+                          <FiDownload /> Download PDF
+                        </button>
                       </div>
                     </div>
                   ))}
