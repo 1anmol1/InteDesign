@@ -40,6 +40,31 @@ const Explorer = () => {
   useEffect(() => {
     localStorage.setItem('intedesign_favorites', JSON.stringify(favorites));
   }, [favorites]);
+
+  // Clear state when user changes to prevent cross-user leakage
+  useEffect(() => {
+    if (authLoading) return;
+    const currentUserId = user?.id || 'anonymous';
+    const savedUserId = localStorage.getItem('intedesign_last_user_id');
+    
+    if (savedUserId && savedUserId !== currentUserId) {
+      // User has changed, clear the favorites and explorer session
+      setFavorites([]);
+      setImages([]);
+      setPrompt('');
+      setAiData(null);
+      setPage(1);
+      
+      localStorage.removeItem('intedesign_favorites');
+      localStorage.removeItem('intedesign_last_board_code');
+      sessionStorage.removeItem('explorer_prompt');
+      sessionStorage.removeItem('explorer_images');
+      sessionStorage.removeItem('explorer_aiData');
+      sessionStorage.removeItem('explorer_page');
+      sessionStorage.removeItem('explorer_phrase');
+    }
+    localStorage.setItem('intedesign_last_user_id', currentUserId);
+  }, [user, authLoading]);
   const [showFavorites, setShowFavorites] = useState(false);
   const [page, setPage] = useState(() => {
     const cached = sessionStorage.getItem('explorer_page');

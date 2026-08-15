@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Masonry from 'react-masonry-css';
 import axios from 'axios';
 import { API_BASE_URL } from '../constants';
+import { AuthContext } from '../components/AuthContext';
 import { FaTimes, FaChevronLeft, FaChevronRight, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import PageTransition from '../components/PageTransition';
@@ -50,9 +51,25 @@ const Portfolio = () => {
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(9);
 
+  const { user, loading: authLoading } = useContext(AuthContext);
+
   useEffect(() => {
     localStorage.setItem('intedesign_favorites', JSON.stringify(favorites));
   }, [favorites]);
+
+  // Clear state when user changes to prevent cross-user leakage
+  useEffect(() => {
+    if (authLoading) return;
+    const currentUserId = user?.id || 'anonymous';
+    const savedUserId = localStorage.getItem('intedesign_last_user_id');
+    
+    if (savedUserId && savedUserId !== currentUserId) {
+      setFavorites([]);
+      localStorage.removeItem('intedesign_favorites');
+      localStorage.removeItem('intedesign_last_board_code');
+    }
+    localStorage.setItem('intedesign_last_user_id', currentUserId);
+  }, [user, authLoading]);
 
   useEffect(() => {
     setVisibleCount(9);
