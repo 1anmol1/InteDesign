@@ -296,6 +296,23 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
     setShowHistoryDeleteModal(true);
   };
 
+  const handleHistoryDownload = async (board) => {
+    // Download the PDF
+    await handleDownload(board.images);
+    // Mark this board as downloaded in the DB
+    try {
+      const res = await axios.put(`${API_BASE_URL}/api/visionboard/${board.code}/downloaded`);
+      const now = res.data.downloadedAt || new Date().toISOString();
+      setHistoryBoards(prev => prev.map(b =>
+        b.code === board.code
+          ? { ...b, isDownloaded: true, downloadedAt: now }
+          : b
+      ));
+    } catch (err) {
+      console.error('Failed to mark board as downloaded:', err);
+    }
+  };
+
   const confirmDeleteHistoryBoard = async () => {
     if (!historyBoardToDelete) return;
     try {
@@ -1126,7 +1143,11 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
                           </span>
                           <span className="text-xs font-bold text-gray-500 text-right">
                             {new Date(board.createdAt).toLocaleString()}<br/>
-                            {board.isDownloaded ? 'Downloaded' : 'Saved Draft'}
+                            {board.isDownloaded
+                              ? (board.downloadedAt && (Date.now() - new Date(board.downloadedAt).getTime()) < 24 * 60 * 60 * 1000
+                                ? <span className="text-green-600">Recently Downloaded</span>
+                                : <span className="text-blue-500">Downloaded</span>)
+                              : <span className="text-gray-400">Saved Draft</span>}
                           </span>
                         </div>
 
@@ -1190,12 +1211,34 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
                         >
                           Load Canvas ({board.count} items)
                         </button>
-                        <button
-                          onClick={() => handleDownload(board.images)}
-                          className="w-full py-3 bg-pink-400 text-black font-black uppercase tracking-widest text-xs hover:bg-pink-300 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black flex items-center justify-center gap-2"
-                        >
-                          <FiDownload /> Download PDF
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleHistoryDownload(board)}
+                            className="flex-1 py-3 bg-pink-400 text-black font-black uppercase tracking-widest text-xs hover:bg-pink-300 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black flex items-center justify-center gap-2"
+                          >
+                            <FiDownload /> PDF
+                          </button>
+                          <button
+                            onClick={async () => {
+                              try {
+                                await axios.post(`${API_BASE_URL}/api/visionboard/save`, {
+                                  images: board.images,
+                                  code: board.code,
+                                  isDownloaded: false,
+                                  name: board.name,
+                                });
+                                setHistoryBoards(prev => prev.map(b =>
+                                  b.code === board.code ? { ...b } : b
+                                ));
+                              } catch (err) {
+                                console.error('Failed to save board:', err);
+                              }
+                            }}
+                            className="flex-1 py-3 bg-yellow-400 text-black font-black uppercase tracking-widest text-xs hover:bg-yellow-300 transition-colors shadow-[4px_4px_0px_#000000] hover:shadow-none hover:translate-y-1 hover:translate-x-1 border-2 border-black flex items-center justify-center gap-2"
+                          >
+                            <FaHeart /> Save
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}

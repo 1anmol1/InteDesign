@@ -48,7 +48,10 @@ router.post('/save', async (req, res) => {
       if (userId) query.userId = userId;
       
       const updateData = { images: safe };
-      if (typeof isDownloaded === 'boolean') updateData.isDownloaded = isDownloaded;
+      if (typeof isDownloaded === 'boolean') {
+        updateData.isDownloaded = isDownloaded;
+        if (isDownloaded) updateData.downloadedAt = new Date();
+      }
       if (name) updateData.name = name;
 
       const updatedBoard = await VisionBoard.findOneAndUpdate(
@@ -63,7 +66,10 @@ router.post('/save', async (req, res) => {
 
     // Create new board
     const newBoardData = { images: safe, userId };
-    if (typeof isDownloaded === 'boolean') newBoardData.isDownloaded = isDownloaded;
+    if (typeof isDownloaded === 'boolean') {
+      newBoardData.isDownloaded = isDownloaded;
+      if (isDownloaded) newBoardData.downloadedAt = new Date();
+    }
     if (name) newBoardData.name = name;
 
     const board = await VisionBoard.create(newBoardData);
@@ -80,7 +86,7 @@ router.get('/history', userAuth, async (req, res) => {
   try {
     const boards = await VisionBoard.find({ userId: req.user.id, isDeleted: false })
       .sort({ createdAt: -1 })
-      .select('code createdAt images isDownloaded name');
+      .select('code createdAt images isDownloaded downloadedAt name');
     
     // Map to simplified structure for the frontend
     const history = boards.map(b => ({
@@ -88,6 +94,7 @@ router.get('/history', userAuth, async (req, res) => {
       name: b.name || '',
       createdAt: b.createdAt,
       isDownloaded: b.isDownloaded,
+      downloadedAt: b.downloadedAt,
       count: b.images.length,
       images: b.images
     }));
@@ -116,6 +123,23 @@ router.put('/:code/rename', userAuth, async (req, res) => {
   } catch (err) {
     console.error('VisionBoard rename error:', err);
     return res.status(500).json({ error: 'Failed to rename board.' });
+  }
+});
+
+// ── PUT /api/visionboard/:code/downloaded ────────────────────────────────────
+// Mark a board as downloaded
+router.put('/:code/downloaded', userAuth, async (req, res) => {
+  try {
+    const board = await VisionBoard.findOneAndUpdate(
+      { code: req.params.code.toUpperCase(), userId: req.user.id },
+      { isDownloaded: true, downloadedAt: new Date() },
+      { new: true }
+    );
+    if (!board) return res.status(404).json({ error: 'Board not found or unauthorized.' });
+    return res.json({ success: true, downloadedAt: board.downloadedAt });
+  } catch (err) {
+    console.error('VisionBoard mark downloaded error:', err);
+    return res.status(500).json({ error: 'Failed to update board.' });
   }
 });
 
