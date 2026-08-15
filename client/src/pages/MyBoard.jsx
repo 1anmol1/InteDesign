@@ -354,28 +354,22 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
       pdf.setLineWidth(10);
       pdf.rect(0, 0, pageW, pageH, 'S');
 
-      // Studio name
+      // User's name
+      const userName = user?.name || 'Guest';
       pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(14);
+      pdf.setFontSize(22);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('INTEDESIGN STUDIO', pageW / 2, pageH / 2 - 60, { align: 'center', charSpace: 4 });
-
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('MY DESIGN VISION BOARD', pageW / 2, pageH / 2 - 42, { align: 'center', charSpace: 2 });
+      pdf.text(userName.toUpperCase(), pageW / 2, pageH / 2 - 70, { align: 'center', charSpace: 3 });
 
       // Divider
       pdf.setLineWidth(2);
-      pdf.line(pageW / 2 - 80, pageH / 2 - 28, pageW / 2 + 80, pageH / 2 - 28);
+      pdf.line(pageW / 2 - 80, pageH / 2 - 55, pageW / 2 + 80, pageH / 2 - 55);
 
       if (boardCode) {
-        pdf.setFontSize(9);
-        pdf.text('BOARD REFERENCE CODE', pageW / 2, pageH / 2 - 10, { align: 'center', charSpace: 2 });
-
         // Code box (yellow bg, black border, shadow)
         const boxW = 140, boxH = 34;
         const boxX = pageW / 2 - boxW / 2;
-        const boxY = pageH / 2 - 2;
+        const boxY = pageH / 2 - 45;
         
         // Shadow
         pdf.setFillColor(0, 0, 0);
@@ -389,12 +383,23 @@ const [showHistoryDeleteModal, setShowHistoryDeleteModal] = useState(false);
         pdf.setFontSize(18);
         pdf.setFont('courier', 'bold');
         pdf.setTextColor(0, 0, 0);
-        pdf.text(boardCode, pageW / 2, pageH / 2 + 20, { align: 'center', charSpace: 2 });
-
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Share this code with InteDesign Studio', pageW / 2, pageH / 2 + 45, { align: 'center' });
+        pdf.text(boardCode, pageW / 2, pageH / 2 - 24, { align: 'center', charSpace: 2 });
       }
+
+      // Divider
+      pdf.setLineWidth(2);
+      pdf.setDrawColor(0, 0, 0);
+      pdf.line(pageW / 2 - 80, pageH / 2 + 2, pageW / 2 + 80, pageH / 2 + 2);
+
+      // InteDesign Vision Board
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('INTEDESIGN VISION BOARD', pageW / 2, pageH / 2 + 22, { align: 'center', charSpace: 4 });
+
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Share this code with InteDesign Studio', pageW / 2, pageH / 2 + 45, { align: 'center' });
 
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'bold');
