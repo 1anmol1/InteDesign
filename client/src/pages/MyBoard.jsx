@@ -77,6 +77,18 @@ const MyBoard = () => {
     skipUnsavedRef.current = false;
   }, [favorites]);
 
+  // Prevent body scrolling when any modal or lightbox is open
+  useEffect(() => {
+    if (showHistoryModal || showDeleteModal || showSelectionDeleteModal || showItemDeleteModal || showLoadConfirmModal || lightboxIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showHistoryModal, showDeleteModal, showSelectionDeleteModal, showItemDeleteModal, showLoadConfirmModal, lightboxIndex]);
+
   // ── Lightbox (uses tabFavorites for navigation) ────────────────
   const lightboxImage = lightboxIndex !== null ? tabFavorites[lightboxIndex] : null;
 
@@ -1012,7 +1024,7 @@ const MyBoard = () => {
                   <p className="text-gray-500 font-bold">You haven't saved any vision boards yet.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pr-2">
                   {historyBoards.map(board => (
                     <div key={board.code} className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_#000000] hover:shadow-[2px_2px_0px_#000000] hover:translate-y-1 hover:translate-x-1 transition-all flex flex-col justify-between">
                       <div>

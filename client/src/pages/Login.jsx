@@ -52,7 +52,7 @@ export default function Login() {
 
     const checkHealth = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/health`);
+        const res = await axios.get(`${API_BASE_URL}/api/health`, { timeout: 5000 });
         if (res.status === 200) {
           setServerStatus('online');
           clearInterval(intervalId);
@@ -63,15 +63,17 @@ export default function Login() {
       }
     };
 
-    checkHealth();
+    checkHealth(); // Initial check
+    
+    // Poll every 3 seconds indefinitely until online
     intervalId = setInterval(checkHealth, 3000);
 
     countdownId = setInterval(() => {
       setTimer(prev => {
         if (prev <= 1) {
-          clearInterval(intervalId);
           clearInterval(countdownId);
-          setServerStatus(s => s === 'online' ? 'online' : 'offline');
+          // Keep the intervalId running! The server might just be taking a long time (Render free tier can take up to 2 mins)
+          setServerStatus(s => s === 'online' ? 'online' : 'delayed');
           return 0;
         }
         return prev - 1;
@@ -126,9 +128,12 @@ export default function Login() {
           </div>
         )}
 
-        {serverStatus === 'offline' && (
-          <div className="bg-red-100 text-red-800 p-3 mb-4 font-bold border-2 border-red-400 uppercase text-xs">
-            Server is currently offline. Please try again later.
+        {serverStatus === 'delayed' && (
+          <div className="bg-orange-100 text-orange-800 p-3 mb-4 font-bold border-2 border-orange-400 uppercase text-xs flex justify-between items-center animate-pulse">
+            <span>Server is taking longer than usual...</span>
+            <span className="bg-orange-400 text-black px-2 py-1 border-2 border-black">
+              Wait
+            </span>
           </div>
         )}
 
